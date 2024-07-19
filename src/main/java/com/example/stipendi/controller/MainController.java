@@ -1,6 +1,8 @@
 package com.example.stipendi.controller;
 
 import com.example.stipendi.excel.ExcelEmployeeReporter;
+import com.example.stipendi.excel.ExcelWorkTimeReport;
+import com.example.stipendi.service.DirectIndirectService;
 import com.example.stipendi.service.EmployeeService;
 import com.example.stipendi.service.SalaryService;
 import com.example.stipendi.util.contract.ErrorHandler;
@@ -24,6 +26,8 @@ public class MainController {
     private ExcelEmployeeReporter excelEmployeeReporter;
     private ErrorHandler errorHandler;
     private SalaryService salaryService;
+    private ExcelWorkTimeReport excelWorkTimeReport;
+    private DirectIndirectService directIndirectService;
 
     public MainController() {
         // Default constructor
@@ -36,11 +40,15 @@ public class MainController {
     public void setServices(EmployeeService employeeService,
                             ErrorHandler errorHandler,
                             SalaryService salaryService,
-                            ExcelEmployeeReporter excelEmployeeReporter) {
+                            ExcelEmployeeReporter excelEmployeeReporter,
+                            ExcelWorkTimeReport excelWorkTimeReport,
+                            DirectIndirectService directIndirectService) {
         this.employeeService = employeeService;
         this.errorHandler = errorHandler;
         this.salaryService = salaryService;
         this.excelEmployeeReporter = excelEmployeeReporter;
+        this.excelWorkTimeReport = excelWorkTimeReport;
+        this.directIndirectService = directIndirectService;
     }
 
     @FXML
@@ -57,6 +65,9 @@ public class MainController {
 
     @FXML
     private Button generateReportButton;
+
+    @FXML
+    private Button generateReportDirettiIndiretti;
 
     @FXML
     private TextField employeeFilePath;
@@ -84,6 +95,7 @@ public class MainController {
         selectFolderButton.setOnAction(event -> selectReportsFolder());
         calculateButton.setOnAction(actionEvent -> calculate());
         generateReportButton.setOnAction(actionEvent -> generateReport());
+        generateReportDirettiIndiretti.setOnAction(actionEvent -> generateReportDirettiIndiretti());
 
         this.errorHandler = new ErrorHandlerImpl(errorTextArea); // Initialize error handler with text area
     }
@@ -128,10 +140,22 @@ public class MainController {
         int year = selectedDate.getYear();
 
         salaryService.updateEmployeeSalary(month, year);
+        directIndirectService.updateIndirectOccupied(month, year);
+        directIndirectService.updateDirectlyOccupied(month, year);
     }
 
     private void generateReport() {
-        excelEmployeeReporter.generateEmployeeReport(reportsFolderPath.getText());
+        YearMonth selectedDate = YearMonth.from(monthYearPicker.getValue());
+        int month = selectedDate.getMonthValue();
+        int year = selectedDate.getYear();
+        excelEmployeeReporter.generateEmployeeReport(reportsFolderPath.getText(), month, year);
+    }
+
+    private void generateReportDirettiIndiretti(){
+        YearMonth selectedDate = YearMonth.from(monthYearPicker.getValue());
+        int month = selectedDate.getMonthValue();
+        int year = selectedDate.getYear();
+        excelWorkTimeReport.generateWorkHoursReport(reportsFolderPath.getText(), month, year);
     }
 }
 

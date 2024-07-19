@@ -28,9 +28,9 @@ public class ExcelWorkTimeReport {
         this.errorHandler = errorHandler;
     }
 
-    public void generateWorkHoursReport(String filePath) {
+    public void generateWorkHoursReport(String filePath, int repoMonth, int repoYear) {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Work Hours Report");
+        Sheet sheet = workbook.createSheet("TABLLEA ORE LAVORATE");
 
         // Create styles
         CellStyle titleStyle = createCellStyle(workbook, new XSSFColor(new byte[]{(byte) 186, (byte) 140, (byte) 220}, null), 16, true, HorizontalAlignment.CENTER);
@@ -90,7 +90,7 @@ public class ExcelWorkTimeReport {
 
         // Save the workbook
         try {
-            FileOutputStream fileOut = new FileOutputStream(filePath);
+            FileOutputStream fileOut = new FileOutputStream(filePath + "\\TABELA ORE LAVORATE - " + repoMonth + " - " + repoYear + ".xlsx");
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();

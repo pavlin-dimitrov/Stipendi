@@ -19,7 +19,7 @@ public class ExcelEmployeeReporter {
         this.employeeDAO = employeeDAO;
     }
 
-    public void generateEmployeeReport(String filePath, int month) {
+    public void generateEmployeeReport(String filePath, int month, int year) {
         List<String> headers = Arrays.asList("ID", "EGN", "Full Name", "City", "Position", "Department", "Base Salary",
                 "Professional Experience Bonus", "Achievement Bonus",
                 "One Time Bonus", "Transport Bonus", "Fixed Bonus",
@@ -77,7 +77,7 @@ public class ExcelEmployeeReporter {
         }
 
         // Save the workbook
-        try (FileOutputStream fileOut = new FileOutputStream(filePath + "\\Stipendi OMS per mese " + month + ".xlsx" )) {
+        try (FileOutputStream fileOut = new FileOutputStream(filePath + "\\Stipendi OMS per mese " + month + "-" + year + ".xlsx" )) {
             workbook.write(fileOut);
         } catch (IOException e) {
             e.printStackTrace();

@@ -36,10 +36,11 @@
    <left>
       <ButtonBar prefHeight="40.0" prefWidth="405.0" BorderPane.alignment="CENTER">
         <buttons>
-               <Button fx:id="generateReportButton" prefHeight="25.0" prefWidth="105.0" text="Generate Report" />
-               <Button fx:id="calculateButton" prefHeight="25.0" prefWidth="105.0" text="Calculate" />
-               <Button fx:id="appConfigVariables" prefHeight="25.0" prefWidth="105.0" text="Variables" />
-               <Button fx:id="occupation" prefHeight="25.0" prefWidth="105.0" text="Occupation" />
+            <Button fx:id="calculateButton" prefHeight="25.0" prefWidth="105.0" text="Calculate" />
+            <Button fx:id="generateReportButton" prefHeight="25.0" prefWidth="105.0" text="Stipendi" />
+            <Button fx:id="generateReportDirettiIndiretti" prefHeight="25.0" prefWidth="105.0" text="Diret/Indiret" />
+            <Button fx:id="appConfigVariables" prefHeight="25.0" prefWidth="105.0" text="Variables" />
+            <Button fx:id="occupation" prefHeight="25.0" prefWidth="105.0" text="Occupation" />
         </buttons>
       </ButtonBar>
    </left>

@@ -39,7 +39,18 @@ public class Main extends Application {
         AppConfigVariableDAO appConfigVariableDAO = new AppConfigVariableDAO();
         SalaryService salaryService = new SalaryService(employeeDAO, workdayCalculator,appConfigVariableDAO);
         ExcelEmployeeReporter excelEmployeeReporter = new ExcelEmployeeReporter(employeeDAO);
-        controller.setServices(employeeService, errorHandler, salaryService, excelEmployeeReporter);
+        DirectlyOccupiedDAO directlyOccupiedDAO = new DirectlyOccupiedDAO();
+        IndirectOccupiedDAO indirectOccupiedDAO = new IndirectOccupiedDAO();
+        ExcelWorkTimeReport excelWorkTimeReport = new ExcelWorkTimeReport(directlyOccupiedDAO, indirectOccupiedDAO, errorHandler);
+        DirectIndirectService directIndirectService = new DirectIndirectService(employeeDAO, directlyOccupiedDAO, indirectOccupiedDAO);
+
+        controller.setServices(employeeService,
+                errorHandler,
+                salaryService,
+                excelEmployeeReporter,
+                excelWorkTimeReport,
+                directIndirectService);
+
         controller.cleanEmployeeTable();
 
         primaryStage.setScene(scene);

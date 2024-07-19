@@ -39,7 +39,7 @@ public class DirectIndirectService {
     public void updateIndirectOccupied(int month, int year) {
         List<Employee> employees = employeeDAO.getAllEmployees();
         double totalIndirectOccupiedHours = employees.stream()
-                .filter(employee -> "I".equals(employee.getOtherConditions()) || "C".equals(employee.getOtherConditions()))
+                .filter(employee -> "I".equals(employee.getOtherConditions().trim()) || "C".equals(employee.getOtherConditions().trim()))
                 .mapToDouble(employee -> (employee.getTotalWorkingDays() * 8.0) + employee.getTotalOvertimeWeek() + employee.getTotalOvertimeWeekend())
                 .sum();
 
