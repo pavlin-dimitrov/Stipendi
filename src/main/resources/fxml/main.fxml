@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.stipendi.controller.MainController">
+    <bottom>
+        <VBox prefHeight="526.0" prefWidth="670.0" spacing="10" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
+            <HBox spacing="10">
+                <Label prefHeight="17.0" prefWidth="89.0" text="TRZ File:" />
+                <TextField fx:id="employeeFilePath" editable="false" prefHeight="25.0" prefWidth="405.0" />
+                <Button fx:id="selectEmployeeFileButton" prefHeight="25.0" prefWidth="140.0" text="Select TRZ File" />
+            </HBox>
+            <HBox spacing="10">
+                <Label prefHeight="17.0" prefWidth="89.0" text="Check-In File:" />
+                <TextField fx:id="attendanceFilePath" editable="false" prefHeight="25.0" prefWidth="405.0" />
+                <Button fx:id="selectAttendanceFileButton" prefHeight="25.0" prefWidth="140.0" text="Select Check-In File" />
+            </HBox>
+            <HBox spacing="10">
+                <Label prefHeight="17.0" prefWidth="89.0" text="Select Month and Year:" />
+                <DatePicker fx:id="monthYearPicker" prefHeight="25.0" prefWidth="140.0" />
+            </HBox>
+            <HBox spacing="10">
+                <Label prefHeight="17.0" prefWidth="89.0" text="Reports Folder:" />
+                <TextField fx:id="reportsFolderPath" editable="false" prefHeight="25.0" prefWidth="405.0" />
+                <Button fx:id="selectFolderButton" prefHeight="25.0" prefWidth="140.0" text="Select Folder" />
+            </HBox>
+            <Label fx:id="errorLabel" textFill="red" />
+            <TextArea fx:id="errorTextArea" prefHeight="330.0" prefWidth="405.0" wrapText="true" />
+        </VBox>
+    </bottom>
+   <left>
+      <ButtonBar prefHeight="40.0" prefWidth="405.0" BorderPane.alignment="CENTER">
+        <buttons>
+               <Button fx:id="generateReportButton" prefHeight="25.0" prefWidth="105.0" text="Generate Report" />
+               <Button fx:id="calculateButton" prefHeight="25.0" prefWidth="105.0" text="Calculate" />
+               <Button fx:id="appConfigVariables" prefHeight="25.0" prefWidth="105.0" text="Variables" />
+               <Button fx:id="occupation" prefHeight="25.0" prefWidth="105.0" text="Occupation" />
+        </buttons>
+      </ButtonBar>
+   </left>
+</BorderPane>
