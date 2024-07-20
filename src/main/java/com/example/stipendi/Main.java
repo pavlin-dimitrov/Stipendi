@@ -27,11 +27,13 @@ public class Main extends Application {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
         BorderPane root = loader.load();
-        Scene scene = new Scene(root, 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm()); // Add the CSS file
+        Scene mainScene  = new Scene(root, 800, 600);
+        mainScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm()); // Add the CSS file
 
         // Получаване на контролера и задаване на услугите
         MainController controller = loader.getController();
+        controller.setStageAndScene(primaryStage, mainScene);
+
         EmployeeService employeeService = new EmployeeService();
         ErrorHandler errorHandler = new ErrorHandlerImpl(controller.getErrorTextArea());
         EmployeeDAO employeeDAO = new EmployeeDAO();
@@ -53,7 +55,7 @@ public class Main extends Application {
 
         controller.cleanEmployeeTable();
 
-        primaryStage.setScene(scene);
+        primaryStage.setScene(mainScene);
         primaryStage.setTitle("Stipendi Application");
         primaryStage.show();
 

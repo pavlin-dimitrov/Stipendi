@@ -8,6 +8,8 @@ import com.example.stipendi.service.SalaryService;
 import com.example.stipendi.util.contract.ErrorHandler;
 import com.example.stipendi.util.implementation.ErrorHandlerImpl;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -19,6 +21,7 @@ import javafx.stage.Stage;
 import lombok.Getter;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.YearMonth;
 
 public class MainController {
@@ -28,6 +31,14 @@ public class MainController {
     private SalaryService salaryService;
     private ExcelWorkTimeReport excelWorkTimeReport;
     private DirectIndirectService directIndirectService;
+
+    private Stage stage;
+    private Scene mainScene;
+
+    public void setStageAndScene(Stage stage, Scene mainScene) {
+        this.stage = stage;
+        this.mainScene = mainScene;
+    }
 
     public MainController() {
         // Default constructor
@@ -89,6 +100,9 @@ public class MainController {
     private Label errorLabel;
 
     @FXML
+    private Button appConfigVariables;
+
+    @FXML
     public void initialize() {
         selectEmployeeFileButton.setOnAction(event -> selectEmployeeFile());
         selectAttendanceFileButton.setOnAction(event -> selectAttendanceFile());
@@ -96,6 +110,7 @@ public class MainController {
         calculateButton.setOnAction(actionEvent -> calculate());
         generateReportButton.setOnAction(actionEvent -> generateReport());
         generateReportDirettiIndiretti.setOnAction(actionEvent -> generateReportDirettiIndiretti());
+        appConfigVariables.setOnAction(actionEvent -> navigateToVariablesScene());
 
         this.errorHandler = new ErrorHandlerImpl(errorTextArea); // Initialize error handler with text area
     }
@@ -156,6 +171,20 @@ public class MainController {
         int month = selectedDate.getMonthValue();
         int year = selectedDate.getYear();
         excelWorkTimeReport.generateWorkHoursReport(reportsFolderPath.getText(), month, year);
+    }
+
+    private void navigateToVariablesScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/variables.fxml"));
+            Scene variablesScene = new Scene(loader.load(), 800, 600);
+
+            VariablesController variablesController = loader.getController();
+            variablesController.setStageAndScene(stage, mainScene);
+
+            stage.setScene(variablesScene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 
