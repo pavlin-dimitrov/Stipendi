@@ -13,7 +13,7 @@
           <Label prefHeight="17.0" prefWidth="134.0" text="Straordinari setimaniali" />
           <TextField fx:id="txtOvertimeWeek" prefHeight="25.0" prefWidth="212.0" />
           <Button fx:id="submitOvertimeWeek" onAction="#handleSubmitButtonOvertimeWeek" prefHeight="25.0" prefWidth="64.0" text="Submit" />
-          <Label prefHeight="17.0" prefWidth="134.0" text="Straordinari setimaniali" alignment="CENTER">
+          <Label fx:id="lblOvertimeWeek" prefHeight="17.0" prefWidth="134.0" text="Straordinari setimaniali" alignment="CENTER">
               <HBox.margin>
                   <Insets left="10" />
               </HBox.margin>
@@ -29,7 +29,7 @@
             <Label prefHeight="17.0" prefWidth="134.0" text="Straordinari weekend" />
             <TextField fx:id="txtOvertimeWeekend" prefHeight="25.0" prefWidth="212.0" />
             <Button fx:id="submitOvertimeWeekend" onAction="#handleSubmitButtonOvertimeWeekend" prefHeight="25.0" prefWidth="64.0" text="Submit" />
-            <Label prefHeight="17.0" prefWidth="134.0" text="Straordinari weekend" alignment="CENTER">
+            <Label fx:id="lblOvertimeWeekend" prefHeight="17.0" prefWidth="134.0" text="Straordinari weekend" alignment="CENTER">
                 <HBox.margin>
                     <Insets left="10" />
                 </HBox.margin>
@@ -44,8 +44,8 @@
         <children>
             <Label prefHeight="17.0" prefWidth="134.0" text="Notturno" />
             <TextField fx:id="txtNightShift" prefHeight="25.0" prefWidth="212.0" />
-            <Button fx:id="submitightShift" onAction="#handleSubmitButtonightShift" prefHeight="25.0" prefWidth="64.0" text="Submit" />
-            <Label prefHeight="17.0" prefWidth="134.0" text="Notturno" alignment="CENTER">
+            <Button fx:id="submitNightShift" onAction="#handleSubmitButtonightShift" prefHeight="25.0" prefWidth="64.0" text="Submit" />
+            <Label fx:id="lblNightShift" prefHeight="17.0" prefWidth="134.0" text="Notturno" alignment="CENTER">
                 <HBox.margin>
                     <Insets left="10" />
                 </HBox.margin>
@@ -61,7 +61,7 @@
             <Label prefHeight="17.0" prefWidth="134.0" text="Carburante" />
             <TextField fx:id="txtFuel" prefHeight="25.0" prefWidth="212.0" />
             <Button fx:id="submitFuel" onAction="#handleSubmitButtonFuel" prefHeight="25.0" prefWidth="64.0" text="Submit" />
-            <Label prefHeight="17.0" prefWidth="134.0" text="Carburante" alignment="CENTER">
+            <Label fx:id="lblFuel" prefHeight="17.0" prefWidth="134.0" text="Carburante" alignment="CENTER">
                 <HBox.margin>
                     <Insets left="10" />
                 </HBox.margin>
@@ -77,7 +77,7 @@
             <Label prefHeight="17.0" prefWidth="134.0" text="Contributi" />
             <TextField fx:id="txtContributi" prefHeight="25.0" prefWidth="212.0" />
             <Button fx:id="submitContributi" onAction="#handleSubmitButtonContributi" prefHeight="25.0" prefWidth="64.0" text="Submit" />
-            <Label prefHeight="17.0" prefWidth="134.0" text="Contributi" alignment="CENTER">
+            <Label fx:id="lblContributi" prefHeight="17.0" prefWidth="134.0" text="Contributi" alignment="CENTER">
                 <HBox.margin>
                     <Insets left="10" />
                 </HBox.margin>
@@ -93,7 +93,7 @@
             <Label prefHeight="17.0" prefWidth="134.0" text="DDFL" />
             <TextField fx:id="txtDdfl" prefHeight="25.0" prefWidth="212.0" />
             <Button fx:id="submitDdfl" onAction="#handleSubmitButtonDdfl" prefHeight="25.0" prefWidth="64.0" text="Submit" />
-            <Label prefHeight="17.0" prefWidth="134.0" text="DDFL" alignment="CENTER">
+            <Label fx:id="lblDdfl" prefHeight="17.0" prefWidth="134.0" text="DDFL" alignment="CENTER">
             <HBox.margin>
                 <Insets left="10" />
             </HBox.margin>
@@ -101,5 +101,37 @@
         </children>
     </HBox>
 
-    <Button onAction="#handleBackButton" text="Back" />
+    <padding>
+        <Insets bottom="10" left="10" right="10" top="10" />
+    </padding>
+    <HBox alignment="CENTER_LEFT" prefHeight="33.0" prefWidth="412.0" spacing="5">
+        <children>
+            <Label prefHeight="17.0" prefWidth="134.0" text="Achievement Bonus" />
+            <TextField fx:id="txtAchievementBonus" prefHeight="25.0" prefWidth="212.0" />
+            <Button fx:id="submitAchievementBonus" onAction="#handleSubmitButtonAchievementBonus" prefHeight="25.0" prefWidth="64.0" text="Submit" />
+            <Label fx:id="lblAchievementBonus" prefHeight="17.0" prefWidth="134.0" text="Achievement Bonus" alignment="CENTER">
+                <HBox.margin>
+                    <Insets left="10" />
+                </HBox.margin>
+            </Label>
+        </children>
+    </HBox>
+
+    <padding>
+        <Insets bottom="10" left="10" right="10" top="10" />
+    </padding>
+    <HBox alignment="CENTER_LEFT" prefHeight="33.0" prefWidth="412.0" spacing="5">
+        <children>
+            <Label prefHeight="17.0" prefWidth="134.0" text="Cut Achievement Bonus" />
+            <TextField fx:id="txtCutAchievementBonus" prefHeight="25.0" prefWidth="212.0" />
+            <Button fx:id="submitCutAchievementBonus" onAction="#handleSubmitButtonCutAchievementBonus" prefHeight="25.0" prefWidth="64.0" text="Submit" />
+            <Label fx:id="lblCutAchievementBonus" prefHeight="17.0" prefWidth="134.0" text="Cut Achievement Bonus" alignment="CENTER">
+                <HBox.margin>
+                    <Insets left="10" />
+                </HBox.margin>
+            </Label>
+        </children>
+    </HBox>
+
+    <Button prefHeight="25.0" prefWidth="105.0" onAction="#handleBackButton" text="Back" />
 </VBox>

@@ -38,5 +38,10 @@ public class ErrorHandlerImpl implements ErrorHandler {
             Platform.runLater(() -> errorTextArea.appendText("No errors encountered during import.\n"));
         }
     }
-}
 
+    @Override
+    public void clearErrors() {
+        errorMessages.clear();
+        errorTextArea.clear();
+    }
+}

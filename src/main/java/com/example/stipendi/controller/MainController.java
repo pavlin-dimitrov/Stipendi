@@ -10,11 +10,7 @@ import com.example.stipendi.util.implementation.ErrorHandlerImpl;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -41,10 +37,9 @@ public class MainController {
     }
 
     public MainController() {
-        // Default constructor
     }
 
-    public void cleanEmployeeTable(){
+    public void cleanEmployeeTable() {
         employeeService.clearEmployeesTable();
     }
 
@@ -103,6 +98,15 @@ public class MainController {
     private Button appConfigVariables;
 
     @FXML
+    private Button city;
+
+    @FXML
+    private Button holidays;
+
+    @FXML
+    private Button occupation;
+
+    @FXML
     public void initialize() {
         selectEmployeeFileButton.setOnAction(event -> selectEmployeeFile());
         selectAttendanceFileButton.setOnAction(event -> selectAttendanceFile());
@@ -111,6 +115,9 @@ public class MainController {
         generateReportButton.setOnAction(actionEvent -> generateReport());
         generateReportDirettiIndiretti.setOnAction(actionEvent -> generateReportDirettiIndiretti());
         appConfigVariables.setOnAction(actionEvent -> navigateToVariablesScene());
+        city.setOnAction(actionEvent -> navigateToCityScene());
+        holidays.setOnAction(actionEvent -> navigateToHolidaysScene());
+        occupation.setOnAction(actionEvent -> navigateToOccupation());
 
         this.errorHandler = new ErrorHandlerImpl(errorTextArea); // Initialize error handler with text area
     }
@@ -121,7 +128,11 @@ public class MainController {
         File file = fileChooser.showOpenDialog(new Stage());
         if (file != null) {
             employeeFilePath.setText(file.getAbsolutePath());
+            errorHandler.clearErrors(); // Clear previous errors
             employeeService.importEmployeesFromExcel(employeeFilePath.getText(), errorHandler);
+            if (!errorHandler.hasErrors()) {
+                showAlert("Success", "Employees imported successfully.", Alert.AlertType.INFORMATION);
+            }
         }
     }
 
@@ -131,7 +142,11 @@ public class MainController {
         File file = fileChooser.showOpenDialog(new Stage());
         if (file != null) {
             attendanceFilePath.setText(file.getAbsolutePath());
+            errorHandler.clearErrors(); // Clear previous errors
             employeeService.importAttendanceRecordsFromExcel(attendanceFilePath.getText(), errorHandler);
+            if (!errorHandler.hasErrors()) {
+                showAlert("Success", "Attendance records imported successfully.", Alert.AlertType.INFORMATION);
+            }
         }
     }
 
@@ -166,17 +181,26 @@ public class MainController {
         excelEmployeeReporter.generateEmployeeReport(reportsFolderPath.getText(), month, year);
     }
 
-    private void generateReportDirettiIndiretti(){
+    private void generateReportDirettiIndiretti() {
         YearMonth selectedDate = YearMonth.from(monthYearPicker.getValue());
         int month = selectedDate.getMonthValue();
         int year = selectedDate.getYear();
         excelWorkTimeReport.generateWorkHoursReport(reportsFolderPath.getText(), month, year);
     }
 
+    private void showAlert(String title, String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     private void navigateToVariablesScene() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/variables.fxml"));
             Scene variablesScene = new Scene(loader.load(), 800, 600);
+            variablesScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
             VariablesController variablesController = loader.getController();
             variablesController.setStageAndScene(stage, mainScene);
@@ -186,7 +210,49 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
+    private void navigateToCityScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/city.fxml"));
+            Scene cityScene = new Scene(loader.load(), 800, 600);
+            cityScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+
+            CityController cityController = loader.getController();
+            cityController.setStageAndScene(stage, mainScene);
+
+            stage.setScene(cityScene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void navigateToHolidaysScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/holidays.fxml"));
+            Scene holidaysScene = new Scene(loader.load(), 800, 600);
+            holidaysScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+
+            HolidaysController holidaysController = loader.getController();
+            holidaysController.setStageAndScene(stage, mainScene);
+
+            stage.setScene(holidaysScene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void navigateToOccupation() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/occupation.fxml"));
+            Scene occupationScene = new Scene(loader.load(), 800, 600);
+            occupationScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+
+            OccupationController occupationController = loader.getController();
+            occupationController.setStageAndScene(stage, mainScene);
+
+            stage.setScene(occupationScene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
-
-
-

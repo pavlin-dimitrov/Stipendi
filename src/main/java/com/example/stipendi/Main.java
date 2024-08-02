@@ -2,12 +2,11 @@ package com.example.stipendi;
 
 import com.example.stipendi.controller.MainController;
 import com.example.stipendi.dao.AppConfigVariableDAO;
-import com.example.stipendi.dao.DirectlyOccupiedDAO;
+import com.example.stipendi.dao.DirectlyDAO;
 import com.example.stipendi.dao.EmployeeDAO;
-import com.example.stipendi.dao.IndirectOccupiedDAO;
+import com.example.stipendi.dao.IndirectDAO;
 import com.example.stipendi.excel.ExcelEmployeeReporter;
 import com.example.stipendi.excel.ExcelWorkTimeReport;
-import com.example.stipendi.model.AppConfigVariable;
 import com.example.stipendi.service.DirectIndirectService;
 import com.example.stipendi.service.EmployeeService;
 import com.example.stipendi.service.SalaryService;
@@ -41,10 +40,10 @@ public class Main extends Application {
         AppConfigVariableDAO appConfigVariableDAO = new AppConfigVariableDAO();
         SalaryService salaryService = new SalaryService(employeeDAO, workdayCalculator,appConfigVariableDAO);
         ExcelEmployeeReporter excelEmployeeReporter = new ExcelEmployeeReporter(employeeDAO);
-        DirectlyOccupiedDAO directlyOccupiedDAO = new DirectlyOccupiedDAO();
-        IndirectOccupiedDAO indirectOccupiedDAO = new IndirectOccupiedDAO();
-        ExcelWorkTimeReport excelWorkTimeReport = new ExcelWorkTimeReport(directlyOccupiedDAO, indirectOccupiedDAO, errorHandler);
-        DirectIndirectService directIndirectService = new DirectIndirectService(employeeDAO, directlyOccupiedDAO, indirectOccupiedDAO);
+        DirectlyDAO directlyDAO = new DirectlyDAO();
+        IndirectDAO indirectDAO = new IndirectDAO();
+        ExcelWorkTimeReport excelWorkTimeReport = new ExcelWorkTimeReport(directlyDAO, indirectDAO, errorHandler);
+        DirectIndirectService directIndirectService = new DirectIndirectService(employeeDAO, directlyDAO, indirectDAO);
 
         controller.setServices(employeeService,
                 errorHandler,
@@ -63,49 +62,5 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-
-//        EmployeeService employeeService = new EmployeeService();
-//
-//        WorkdayCalculator workdayCalculator = new WorkdayCalculator();
-//        AppConfigVariableDAO appConfigVariableDAO = new AppConfigVariableDAO();
-//        SalaryService salaryService = new SalaryService(new EmployeeDAO(), workdayCalculator, appConfigVariableDAO);
-//        DirectIndirectService directIndirectService = new DirectIndirectService(new EmployeeDAO(), new DirectlyOccupiedDAO(), new IndirectOccupiedDAO());
-//
-//        String employeeFilePath = "C:\\Users\\Pavlin\\Downloads\\rbo\\TEMPO DI LAVORO 2024.04.xls";
-//        String attendanceFilePath = "C:\\Users\\Pavlin\\Downloads\\rbo\\WorkTime_Ver2 Производство 1 пример.xlsx";
-//
-//        employeeService.importEmployeesFromExcel(employeeFilePath);
-//        System.out.println("Employees have been imported successfully!");
-//
-//        employeeService.importAttendanceRecordsFromExcel(attendanceFilePath);
-//        System.out.println("Attendance records have been imported and updated successfully!");
-
-        // TODO: Implement JavaFX UI
-
-        //salaryService.updateProfessionalExperienceBonus();
-        //System.out.println("Professional experience bonuses have been updated successfully!");
-
-//        salaryService.updateOneTimeBonus(5, 2024);
-//        System.out.println("One-time bonuses have been calculated successfully!");
-//        System.out.println(workdayCalculator.getWorkdaysInMonth(5, 2024));
-
-        //salaryService.updateTransportBonus();
-        //System.out.println("Transport bonus updated successfully");
-
-        //salaryService.updateFinalSalary();
-        //System.out.println("Final salary updated successfully");
-
-        //directIndirectService.updateDirectlyOccupied(5, 2024);
-        //System.out.println("Directly occupied hours calculated");
-
-//        directIndirectService.updateIndirectOccupied(5, 2024);
-//        System.out.println("Indirect occupied hours calculated");
-
-        //ExcelEmployeeReporter reporter = new ExcelEmployeeReporter(new EmployeeDAO());
-       // reporter.generateEmployeeReport("C:\\Users\\Pavlin\\Downloads\\rbo\\reports\\EmployeeReport.xlsx");
-
-//        ErrorHandler errorHandler = new ErrorHandlerImpl();
-//        ExcelWorkTimeReport excelWorkTimeReport = new ExcelWorkTimeReport(new DirectlyOccupiedDAO(), new IndirectOccupiedDAO(), errorHandler);
-//        excelWorkTimeReport.generateWorkHoursReport("C:\\Users\\Pavlin\\Downloads\\rbo\\reports\\Work Hours Report.xlsx");
     }
 }

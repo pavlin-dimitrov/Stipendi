@@ -1,6 +1,6 @@
 package com.example.stipendi.excel;
 
-import com.example.stipendi.model.AttendanceRecord;
+import com.example.stipendi.model.CheckInRecord;
 import com.example.stipendi.model.Employee;
 import com.example.stipendi.model.WorkShift;
 import com.example.stipendi.util.ExcelFileUtil;
@@ -17,17 +17,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AttendExcelReader extends ExcelReader {
-    public static List<Employee> readAttendanceRecordsFromExcel(String filePath, List<Employee> employees, ErrorHandler errorHandler) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:mm");
-        List<AttendanceRecord> attendanceRecords = new ArrayList<>();
+public class CheckInExcelReader extends ExcelReader {
+
+    public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<Employee> employees, ErrorHandler errorHandler) {
+        List<CheckInRecord> checkInRecords = new ArrayList<>();
 
         try (Workbook workbook = ExcelFileUtil.getWorkbook(filePath)) {
             Sheet sheet = workbook.getSheetAt(0);
             for (Row row : sheet) {
                 if (row.getRowNum() == 0 || isRowEmpty(row)) continue; // Пропускаме заглавния ред и празни редове
 
-                AttendanceRecord record = new AttendanceRecord();
+                CheckInRecord record = new CheckInRecord();
 
                 String egn = getStringCellValue(row.getCell(1));
                 if (egn == null || egn.isEmpty()) {
@@ -36,8 +36,8 @@ public class AttendExcelReader extends ExcelReader {
                 record.setEgn(egn);
 
                 try {
-                    record.setEntryTime(parseDate(row.getCell(3), formatter, errorHandler, row.getRowNum() + 1));
-                    record.setExitTime(parseDate(row.getCell(4), formatter, errorHandler, row.getRowNum() + 1));
+                    record.setEntryTime(parseDate(row.getCell(3), errorHandler, row.getRowNum() + 1));
+                    record.setExitTime(parseDate(row.getCell(4), errorHandler, row.getRowNum() + 1));
                 } catch (Exception e) {
                     errorHandler.addError("Invalid date format at row " + (row.getRowNum() + 1) + ": " + e.getMessage());
                     continue;
@@ -51,14 +51,14 @@ public class AttendExcelReader extends ExcelReader {
                 record.setOvertimeHours(parseDuration(row.getCell(7), errorHandler, row.getRowNum() + 1));
                 record.setTotalHours(parseDuration(row.getCell(8), errorHandler, row.getRowNum() + 1));
 
-                attendanceRecords.add(record);
+                checkInRecords.add(record);
             }
 
-        } catch (IOException e) {
-            errorHandler.addError("IOException: " + e.getMessage());
+        } catch (IOException | IllegalArgumentException e) {
+            errorHandler.addError(e.getMessage());
         }
 
-        updateEmployeeAttendance(employees, attendanceRecords, errorHandler);
+        updateEmployeeCheckIn(employees, checkInRecords, errorHandler);
 
         return employees;
     }
@@ -73,31 +73,49 @@ public class AttendExcelReader extends ExcelReader {
         return true;
     }
 
-    private static LocalDateTime parseDate(Cell cell, DateTimeFormatter formatter, ErrorHandler errorHandler, int rowNum) {
+    private static LocalDateTime parseDate(Cell cell, ErrorHandler errorHandler, int rowNum) {
+        if (cell == null) {
+            errorHandler.addError("Missing date at row " + rowNum);
+            throw new IllegalStateException("Missing date");
+        }
+
         try {
-            if (cell == null || cell.getCellType() == CellType.BLANK) {
-                errorHandler.addError("Missing date at row " + rowNum);
-                throw new IllegalStateException("Missing date");
-            }
-            if (cell.getCellType() == CellType.NUMERIC) {
-                // Convert Excel numeric date to LocalDateTime
-                return cell.getLocalDateTimeCellValue();
-            } else if (cell.getCellType() == CellType.STRING) {
-                // Parse string date
-                return LocalDateTime.parse(cell.getStringCellValue(), formatter);
-            } else {
-                errorHandler.addError("Unexpected cell type at row " + rowNum + ": " + cell.getCellType());
-                throw new IllegalStateException("Unexpected cell type: " + cell.getCellType());
+            switch (cell.getCellType()) {
+                case NUMERIC:
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        return cell.getLocalDateTimeCellValue();
+                    } else {
+                        errorHandler.addError("Invalid numeric date format at row " + rowNum);
+                        throw new IllegalStateException("Invalid numeric date format");
+                    }
+                case STRING:
+                    String dateStr = cell.getStringCellValue().trim();
+                    DateTimeFormatter formatterWithSeconds = DateTimeFormatter.ofPattern("d.M.yyyy H:mm:ss");
+                    DateTimeFormatter formatterWithoutSeconds = DateTimeFormatter.ofPattern("d.M.yyyy H:mm");
+
+                    try {
+                        return LocalDateTime.parse(dateStr, formatterWithSeconds);
+                    } catch (Exception e) {
+                        try {
+                            return LocalDateTime.parse(dateStr, formatterWithoutSeconds);
+                        } catch (Exception e2) {
+                            errorHandler.addError("Invalid date string format at row " + rowNum + ": " + dateStr);
+                            throw new IllegalStateException("Invalid date string format: " + dateStr);
+                        }
+                    }
+                default:
+                    errorHandler.addError("Unexpected cell type at row " + rowNum + ": " + cell.getCellType());
+                    throw new IllegalStateException("Unexpected cell type: " + cell.getCellType());
             }
         } catch (Exception e) {
-            errorHandler.addError("Failed to parse date at row " + rowNum + ": " + (cell != null ? cell.toString() : "null"));
+            errorHandler.addError("Failed to parse date at row " + rowNum + ": " + e.getMessage());
             throw e;
         }
     }
 
-    private static void updateEmployeeAttendance(List<Employee> employees, List<AttendanceRecord> attendanceRecords, ErrorHandler errorHandler) {
+    private static void updateEmployeeCheckIn(List<Employee> employees, List<CheckInRecord> checkInRecords, ErrorHandler errorHandler) {
         for (Employee employee : employees) {
-            List<AttendanceRecord> employeeRecords = attendanceRecords.stream()
+            List<CheckInRecord> employeeRecords = checkInRecords.stream()
                     .filter(record -> record.getEgn().equals(employee.getEgn()))
                     .collect(Collectors.toList());
 
@@ -105,7 +123,7 @@ public class AttendExcelReader extends ExcelReader {
             int totalOvertimeWeekend = 0;
             int totalWorkingDays = calculateTotalWorkdays(employeeRecords);
 
-            for (AttendanceRecord record : employeeRecords) {
+            for (CheckInRecord record : employeeRecords) {
                 if (isSaturday(record.getEntryTime().getDayOfWeek())) {
                     OvertimeResult saturdayResult = calculateOvertimeSaturday(
                             record.getEntryTime(),
@@ -219,11 +237,7 @@ public class AttendExcelReader extends ExcelReader {
         return dayOfWeek == DayOfWeek.SATURDAY;
     }
 
-    private static boolean isWeekend(DayOfWeek dayOfWeek) {
-        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
-    }
-
-    private static int calculateTotalWorkdays(List<AttendanceRecord> records) {
+    private static int calculateTotalWorkdays(List<CheckInRecord> records) {
         return (int) records.stream()
                 .filter(record -> record.getEntryTime() != null) // Филтрира празни записи
                 .map(record -> record.getEntryTime().toLocalDate())

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeExcelReader extends ExcelReader {
+
     public static List<Employee> readEmployeesFromExcel(String filePath, ErrorHandler errorHandler) {
         List<Employee> employeeList = new ArrayList<>();
 
@@ -24,22 +25,26 @@ public class EmployeeExcelReader extends ExcelReader {
                 readEmployeeFromRow(row, employee, errorHandler);
                 employeeList.add(employee);
             }
-        } catch (IOException e) {
-            errorHandler.addError("IOException: " + e.getMessage());
+        } catch (IOException | IllegalArgumentException e) {
+            errorHandler.addError(e.getMessage());
         }
 
         return employeeList;
     }
 
     private static void readEmployeeFromRow(Row row, Employee employee, ErrorHandler errorHandler) {
+
         employee.setFullName(getStringCellValue(row.getCell(0)));
         employee.setEgn(getEgnCellValue(row.getCell(1), row.getRowNum(), errorHandler));
-        employee.setCity(getCityFromCell(row.getCell(2)));
-        employee.setOccupation(getOccupationFromCell(row.getCell(3)));
+        employee.setFixedBonus(getNumericCellValue(row.getCell(2), "fixed bonus", row.getRowNum(), errorHandler));
+        employee.setCity(getCityFromCell(row.getCell(3)));
         employee.setOtherConditions(getStringCellValue(row.getCell(4)));
-        employee.setBaseSalary(getNumericCellValue(row.getCell(5), "base salary", row.getRowNum(), errorHandler));
-        employee.setProfessionalExperienceRate(getNumericCellValue(row.getCell(6), "professional experience rate", row.getRowNum(), errorHandler));
-        employee.setFixedBonus(getNumericCellValue(row.getCell(7), "fixed bonus", row.getRowNum(), errorHandler));
+        employee.setOccupation(getOccupationFromCell(row.getCell(5)));
+        employee.setDaysOffDoo(getNumericCellValue(row.getCell(6), "Sick days by DOO", row.getRowNum(), errorHandler));
+        employee.setDaysOffEmpl(getNumericCellValue(row.getCell(7), "Sick days by employer", row.getRowNum(), errorHandler));
+        employee.setBaseSalary(getNumericCellValue(row.getCell(8), "base salary", row.getRowNum(), errorHandler));
+        employee.setProfessionalExperienceRate(getNumericCellValue(row.getCell(9), "professional experience rate", row.getRowNum(), errorHandler));
+
     }
 
     private static String getEgnCellValue(Cell cell, int rowNum, ErrorHandler errorHandler) {
@@ -70,13 +75,63 @@ public class EmployeeExcelReader extends ExcelReader {
     }
 
     private static double getNumericCellValue(Cell cell, String fieldName, int rowNum, ErrorHandler errorHandler) {
-        if (cell == null) return 0;
+        if (cell == null) {
+            errorHandler.addError("Missing " + fieldName + " at row " + (rowNum + 1));
+            return 0;
+        }
 
         try {
-            return cell.getNumericCellValue();
+            switch (cell.getCellType()) {
+                case NUMERIC:
+                    return cell.getNumericCellValue();
+                case STRING:
+                    // Премахваме празните пространства и проверяваме дали стойността е числова
+                    String stringValue = cell.getStringCellValue().trim();
+                    if (stringValue.isEmpty()) {
+                        return 0; // Ако стойността е празна след премахване на пространствата, връщаме 0
+                    } else if (isNumeric(stringValue)) {
+                        return Double.parseDouble(stringValue);
+                    } else {
+                        errorHandler.addError("Invalid " + fieldName + " format at row " + (rowNum + 1) + ": \"" + cell.getStringCellValue() + "\" (STRING)");
+                        return 0;
+                    }
+                case FORMULA:
+                    switch (cell.getCachedFormulaResultType()) {
+                        case NUMERIC:
+                            return cell.getNumericCellValue();
+                        case STRING:
+                            String formulaValue = cell.getRichStringCellValue().getString().trim();
+                            if (formulaValue.isEmpty()) {
+                                return 0; // Ако стойността е празна след премахване на пространствата, връщаме 0
+                            } else if (isNumeric(formulaValue)) {
+                                return Double.parseDouble(formulaValue);
+                            } else {
+                                errorHandler.addError("Invalid " + fieldName + " format at row " + (rowNum + 1) + ": \"" + cell.getRichStringCellValue().getString() + "\" (FORMULA STRING)");
+                                return 0;
+                            }
+                        default:
+                            errorHandler.addError("Unexpected formula result type for " + fieldName + " at row " + (rowNum + 1));
+                            return 0;
+                    }
+                default:
+                    errorHandler.addError("Unexpected cell type for " + fieldName + " at row " + (rowNum + 1) + ": " + cell.getCellType());
+                    return 0;
+            }
         } catch (IllegalStateException e) {
-            errorHandler.addError("Invalid " + fieldName + " format at row " + (rowNum + 1));
+            errorHandler.addError("Illegal state exception for " + fieldName + " at row " + (rowNum + 1) + ": " + e.getMessage());
             return 0;
+        }
+    }
+
+    private static boolean isNumeric(String str) {
+        if (str == null) {
+            return false;
+        }
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 

@@ -24,8 +24,8 @@ public class EmployeeDAO {
     public void saveEmployee(Employee employee) {
         String query = "INSERT INTO employees (egn, full_name, city_id, occupation_id, base_salary, " +
                 "professional_experience_rate, professional_experience_bonus, achievement_bonus, one_time_bonus, " +
-                "transport_bonus, fixed_bonus, other_conditions, total_overtime_week, total_overtime_weekend, " +
-                "total_working_days, final_salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "transport_bonus, fixed_bonus, other_conditions, days_off_doo, days_off_empl, total_overtime_week, total_overtime_weekend, " +
+                "total_working_days, final_salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -42,58 +42,18 @@ public class EmployeeDAO {
             preparedStatement.setDouble(10, employee.getTransportBonus());
             preparedStatement.setDouble(11, employee.getFixedBonus());
             preparedStatement.setString(12, employee.getOtherConditions());
-            preparedStatement.setInt(13, employee.getTotalOvertimeWeek());
-            preparedStatement.setInt(14, employee.getTotalOvertimeWeekend());
-            preparedStatement.setInt(15, employee.getTotalWorkingDays());
-            preparedStatement.setDouble(16, employee.getFinalSalary());
+            preparedStatement.setDouble(13, employee.getDaysOffDoo());
+            preparedStatement.setDouble(14, employee.getDaysOffEmpl());
+            preparedStatement.setInt(15, employee.getTotalOvertimeWeek());
+            preparedStatement.setInt(16, employee.getTotalOvertimeWeekend());
+            preparedStatement.setInt(17, employee.getTotalWorkingDays());
+            preparedStatement.setDouble(18, employee.getFinalSalary());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-//    public Employee getEmployeeById(int id) {
-//        String query = "SELECT * FROM employees WHERE id = ?";
-//        Employee employee = null;
-//
-//        try (Connection connection = DatabaseHandler.connect();
-//             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-//
-//            preparedStatement.setInt(1, id);
-//            ResultSet resultSet = preparedStatement.executeQuery();
-//
-//            if (resultSet.next()) {
-//                employee = new Employee();
-//                employee.setId(resultSet.getInt("id"));
-//                employee.setEgn(resultSet.getString("egn"));
-//                employee.setFullName(resultSet.getString("full_name"));
-//
-//                City city = cityDAO.getCityById(resultSet.getInt("city_id"));
-//                employee.setCity(city);
-//
-//                Occupation occupation = occupationDAO.getOccupationById(resultSet.getInt("occupation_id"));
-//                employee.setOccupation(occupation);
-//
-//                employee.setBaseSalary(resultSet.getDouble("base_salary"));
-//                employee.setProfessionalExperienceRate(resultSet.getDouble("professional_experience_rate"));
-//                employee.setProfessionalExperienceBonus(resultSet.getDouble("professional_experience_bonus"));
-//                employee.setAchievementBonus(resultSet.getDouble("achievement_bonus"));
-//                employee.setOneTimeBonus(resultSet.getDouble("one_time_bonus"));
-//                employee.setTransportBonus(resultSet.getDouble("transport_bonus"));
-//                employee.setFixedBonus(resultSet.getDouble("fixed_bonus"));
-//                employee.setOtherConditions(resultSet.getString("other_conditions"));
-//                employee.setTotalOvertimeWeek(resultSet.getInt("total_overtime_week"));
-//                employee.setTotalOvertimeWeekend(resultSet.getInt("total_overtime_weekend"));
-//                employee.setTotalWorkingDays(resultSet.getInt("total_working_days"));
-//                employee.setFinalSalary(resultSet.getDouble("final_salary"));
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return employee;
-//    }
 
     public List<Employee> getAllEmployees() {
         String query = "SELECT * FROM employees";
@@ -123,6 +83,8 @@ public class EmployeeDAO {
                 employee.setTransportBonus(resultSet.getDouble("transport_bonus"));
                 employee.setFixedBonus(resultSet.getDouble("fixed_bonus"));
                 employee.setOtherConditions(resultSet.getString("other_conditions"));
+                employee.setDaysOffDoo(resultSet.getDouble("days_off_doo"));
+                employee.setDaysOffEmpl(resultSet.getDouble("days_off_empl"));
                 employee.setTotalOvertimeWeek(resultSet.getInt("total_overtime_week"));
                 employee.setTotalOvertimeWeekend(resultSet.getInt("total_overtime_weekend"));
                 employee.setTotalWorkingDays(resultSet.getInt("total_working_days"));
@@ -141,7 +103,8 @@ public class EmployeeDAO {
         String query = "UPDATE employees SET egn = ?, full_name = ?, city_id = ?, occupation_id = ?, base_salary = ?, " +
                 "professional_experience_rate = ?, professional_experience_bonus = ?, achievement_bonus = ?, " +
                 "one_time_bonus = ?, transport_bonus = ?, fixed_bonus = ?, other_conditions = ?, " +
-                "total_overtime_week = ?, total_overtime_weekend = ?, total_working_days = ?, final_salary = ? WHERE id = ?";
+                "days_off_doo = ?, days_off_empl = ?, total_overtime_week = ?, total_overtime_weekend = ?, " +
+                "total_working_days = ?, final_salary = ? WHERE id = ?";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -158,13 +121,20 @@ public class EmployeeDAO {
             preparedStatement.setDouble(10, employee.getTransportBonus());
             preparedStatement.setDouble(11, employee.getFixedBonus());
             preparedStatement.setString(12, employee.getOtherConditions());
-            preparedStatement.setInt(13, employee.getTotalOvertimeWeek());
-            preparedStatement.setInt(14, employee.getTotalOvertimeWeekend());
-            preparedStatement.setInt(15, employee.getTotalWorkingDays());
-            preparedStatement.setDouble(16, employee.getFinalSalary());
-            preparedStatement.setInt(17, employee.getId());
+            preparedStatement.setDouble(13, employee.getDaysOffDoo());
+            preparedStatement.setDouble(14, employee.getDaysOffEmpl());
+            preparedStatement.setInt(15, employee.getTotalOvertimeWeek());
+            preparedStatement.setInt(16, employee.getTotalOvertimeWeekend());
+            preparedStatement.setInt(17, employee.getTotalWorkingDays());
+            preparedStatement.setDouble(18, employee.getFinalSalary());
+            preparedStatement.setInt(19, employee.getId());
 
-            preparedStatement.executeUpdate();
+            int rowsUpdated = preparedStatement.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Employee " + employee.getFullName() + " updated successfully.");
+            } else {
+                System.out.println("No employee found with id: " + employee.getId());
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -197,17 +167,4 @@ public class EmployeeDAO {
             e.printStackTrace();
         }
     }
-
-//    public void deleteEmployee(int id) {
-//        String query = "DELETE FROM employees WHERE id = ?";
-//
-//        try (Connection connection = DatabaseHandler.connect();
-//             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-//
-//            preparedStatement.setInt(1, id);
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }

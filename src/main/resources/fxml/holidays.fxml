@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox prefHeight="282.0" prefWidth="480.0" spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.stipendi.controller.HolidaysController">
+    <padding>
+        <Insets bottom="20" left="20" right="20" top="20"/>
+    </padding>
+
+    <VBox prefWidth="300" spacing="10">
+        <Label text="Month"/>
+        <TextField fx:id="monthField" disable="true"/>
+        <Label text="Number of Holidays"/>
+        <TextField fx:id="numHolidaysField"/>
+        <Button prefHeight="25.0" prefWidth="105.0" fx:id="btnUpdate" onAction="#handleUpdateHoliday"
+                text="Update"/>
+        <Label fx:id="errorLabel" textFill="red"/>
+        <Button prefHeight="25.0" prefWidth="105.0" onAction="#handleBackButton" text="Back"/>
+    </VBox>
+
+    <TableView fx:id="holidaysTable" HBox.hgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="monthColumn" text="Month"/>
+            <TableColumn fx:id="holidaysColumn" text="Holidays"/>
+        </columns>
+    </TableView>
+</HBox>

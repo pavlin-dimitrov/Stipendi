@@ -11,4 +11,3 @@ public class Occupation {
     private String position;
     private String nkpd;
 }
-

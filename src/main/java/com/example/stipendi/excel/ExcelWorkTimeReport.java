@@ -1,7 +1,7 @@
 package com.example.stipendi.excel;
 
-import com.example.stipendi.dao.DirectlyOccupiedDAO;
-import com.example.stipendi.dao.IndirectOccupiedDAO;
+import com.example.stipendi.dao.DirectlyDAO;
+import com.example.stipendi.dao.IndirectDAO;
 import com.example.stipendi.model.DirectlyOccupied;
 import com.example.stipendi.model.IndirectOccupied;
 import com.example.stipendi.util.contract.ErrorHandler;
@@ -18,12 +18,12 @@ import java.util.List;
 
 public class ExcelWorkTimeReport {
 
-    private final DirectlyOccupiedDAO directlyOccupiedDAO;
-    private final IndirectOccupiedDAO indirectlyOccupiedDAO;
+    private final DirectlyDAO directlyDAO;
+    private final IndirectDAO indirectlyOccupiedDAO;
     private final ErrorHandler errorHandler;
 
-    public ExcelWorkTimeReport(DirectlyOccupiedDAO directlyOccupiedDAO, IndirectOccupiedDAO indirectlyOccupiedDAO, ErrorHandler errorHandler) {
-        this.directlyOccupiedDAO = directlyOccupiedDAO;
+    public ExcelWorkTimeReport(DirectlyDAO directlyDAO, IndirectDAO indirectlyOccupiedDAO, ErrorHandler errorHandler) {
+        this.directlyDAO = directlyDAO;
         this.indirectlyOccupiedDAO = indirectlyOccupiedDAO;
         this.errorHandler = errorHandler;
     }
@@ -66,9 +66,9 @@ public class ExcelWorkTimeReport {
         createMergedCell(sheet, subtitleRow, 0, 13, "DIRETTI", subtitleDirectStyle);
 
         // Get all years
-        List<Integer> years = directlyOccupiedDAO.getAllYears();
+        List<Integer> years = directlyDAO.getAllYears();
         for (Integer year : years) {
-            rowIndex = populateData(sheet, directlyOccupiedDAO.getByYear(year), rowIndex, "TOTALE ORE LAVORATE ", year, headerDirectStyle, hoursStyle);
+            rowIndex = populateData(sheet, directlyDAO.getByYear(year), rowIndex, "TOTALE ORE LAVORATE ", year, headerDirectStyle, hoursStyle);
         }
 
         // Leave two rows gap

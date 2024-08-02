@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class CityDAO {
 
-    public void saveCity(City city) {
+    public boolean saveCity(City city) {
         String query = "INSERT INTO cities (city_name, distance) VALUES (?, ?)";
 
         try (Connection connection = DatabaseHandler.connect();
@@ -20,15 +20,17 @@ public class CityDAO {
             // Проверка дали градът вече съществува
             if (cityExists(city.getCityName())) {
                 System.out.println("City already exists: " + city.getCityName());
-                return;
+                return false;
             }
 
             preparedStatement.setString(1, city.getCityName());
             preparedStatement.setDouble(2, city.getDistance());
 
-            preparedStatement.executeUpdate();
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 

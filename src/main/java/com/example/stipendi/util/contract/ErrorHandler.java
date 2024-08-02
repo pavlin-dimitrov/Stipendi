@@ -4,4 +4,5 @@ public interface ErrorHandler {
     void addError(String errorMessage);
     boolean hasErrors();
     void displayErrors();
+    void clearErrors();
 }

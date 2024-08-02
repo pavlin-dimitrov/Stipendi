@@ -1,8 +1,8 @@
 package com.example.stipendi.service;
 
-import com.example.stipendi.dao.DirectlyOccupiedDAO;
+import com.example.stipendi.dao.DirectlyDAO;
 import com.example.stipendi.dao.EmployeeDAO;
-import com.example.stipendi.dao.IndirectOccupiedDAO;
+import com.example.stipendi.dao.IndirectDAO;
 import com.example.stipendi.model.DirectlyOccupied;
 import com.example.stipendi.model.Employee;
 import com.example.stipendi.model.IndirectOccupied;
@@ -12,13 +12,13 @@ import java.util.List;
 public class DirectIndirectService {
 
     private final EmployeeDAO employeeDAO;
-    private final DirectlyOccupiedDAO directlyOccupiedDAO;
-    private final IndirectOccupiedDAO indirectOccupiedDAO;
+    private final DirectlyDAO directlyDAO;
+    private final IndirectDAO indirectDAO;
 
-    public DirectIndirectService(EmployeeDAO employeeDAO, DirectlyOccupiedDAO directlyOccupiedDAO, IndirectOccupiedDAO indirectOccupiedDAO) {
+    public DirectIndirectService(EmployeeDAO employeeDAO, DirectlyDAO directlyDAO, IndirectDAO indirectDAO) {
         this.employeeDAO = employeeDAO;
-        this.directlyOccupiedDAO = directlyOccupiedDAO;
-        this.indirectOccupiedDAO = indirectOccupiedDAO;
+        this.directlyDAO = directlyDAO;
+        this.indirectDAO = indirectDAO;
     }
 
     public void updateDirectlyOccupied(int month, int year) {
@@ -33,7 +33,7 @@ public class DirectIndirectService {
         directlyOccupied.setMonth(month);
         directlyOccupied.setHours(totalDirectlyOccupiedHours);
 
-        directlyOccupiedDAO.saveDirectlyOccupied(directlyOccupied);
+        directlyDAO.saveDirectlyOccupied(directlyOccupied);
     }
 
     public void updateIndirectOccupied(int month, int year) {
@@ -48,6 +48,6 @@ public class DirectIndirectService {
         indirectOccupied.setMonth(month);
         indirectOccupied.setHours(totalIndirectOccupiedHours);
 
-        indirectOccupiedDAO.saveIndirectOccupied(indirectOccupied);
+        indirectDAO.saveIndirectOccupied(indirectOccupied);
     }
 }

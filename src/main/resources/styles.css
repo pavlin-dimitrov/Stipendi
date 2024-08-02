@@ -1,3 +1,132 @@
-.vbox-custom {
-    -fx-background-color: #BA8CDC;
+/* Основни стилове */
+.root {
+    -fx-background-color: #1e1e2e;
+    -fx-text-fill: #ffffff;
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #d1d1e0;
+}
+
+.text-field, .text-area {
+    -fx-font-size: 16px;      /* Размер на шрифта */
+    -fx-background-color: #2d2d3e;
+    -fx-text-fill: #bdbdde;
+    -fx-prompt-text-fill: #bdbdde;
+    -fx-border-color: #3d3d4e;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.text-area {
+    text-area-background: #2d2d3e;
+}
+
+.text-area .content {
+    -fx-background-color: text-area-background ;
+}
+
+.text-field:focused, .text-area:focused {
+    -fx-border-color: #9d86e9;
+}
+
+.button {
+    -fx-background-color: #6e46c4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+}
+
+.button:hover {
+    -fx-background-color: #7d55d3;
+}
+
+#btnAdd, #calculateButton {
+    -fx-background-color: #4CAF50;
+}
+
+#btnAdd, #calculateButton:hover {
+    -fx-background-color: #45a049;
+}
+
+#btnDelete {
+    -fx-background-color: #f44336;
+}
+
+#btnDelete:hover {
+    -fx-background-color: #d32f2f;
+}
+
+.border-pane {
+    -fx-background-color: #1e1e2e;
+}
+
+.v-box, .h-box {
+    -fx-spacing: 10;
+    -fx-padding: 20;
+}
+
+
+#submitOvertimeWeek,
+#submitOvertimeWeekend,
+#submitNightShift,
+#submitFuel,
+#submitContributi,
+#submitDdfl,
+#submitAchievementBonus,
+#submitCutAchievementBonus {
+    -fx-background-color: #4CAF50;
+}
+
+#submitOvertimeWeek,
+#submitOvertimeWeekend,
+#submitNightShift,
+#submitFuel,
+#submitContributi,
+#submitDdfl,
+#submitAchievementBonus,
+#submitCutAchievementBonus:hover {
+    -fx-background-color: #45a049;
+}
+
+#lblCityNameField, #lblDistance, #lblTrz, #lblCheckIn, #lblCalendar, #lblReport {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+/* Стилове за таблиците */
+.table-view {
+    -fx-background-color: #2d2d3e;
+    -fx-border-color: #3d3d4e;
+    -fx-table-cell-border-color: #696985;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #3d3d4e;
+}
+
+.table-view .filler {
+    -fx-background-color: #2d2d3e;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: #696985;
+    -fx-text-fill: #d1d1e0; /* По-светъл цвят за текста */
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: #6e46c4;
+    -fx-text-fill: #ffffff;
+}
+
+.table-view .table-row-cell:focused {
+    -fx-background-color: #5a37a6;
+    -fx-text-fill: #ffffff;
+}
+
+.table-view .column-header {
+    -fx-background-color: #3d3d4e;
+    -fx-text-fill: #d1d1e0;
 }

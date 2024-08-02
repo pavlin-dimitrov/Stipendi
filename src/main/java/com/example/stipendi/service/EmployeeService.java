@@ -3,13 +3,11 @@ package com.example.stipendi.service;
 import com.example.stipendi.dao.CityDAO;
 import com.example.stipendi.dao.EmployeeDAO;
 import com.example.stipendi.dao.OccupationDAO;
-import com.example.stipendi.excel.AttendExcelReader;
 import com.example.stipendi.model.City;
 import com.example.stipendi.model.Employee;
 import com.example.stipendi.model.Occupation;
 import com.example.stipendi.excel.EmployeeExcelReader;
 import com.example.stipendi.util.contract.ErrorHandler;
-import com.example.stipendi.util.implementation.ErrorHandlerImpl;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +30,21 @@ public class EmployeeService {
     public void importEmployeesFromExcel(String employeeFilePath, ErrorHandler errorHandler) {
         List<Employee> employees = EmployeeExcelReader.readEmployeesFromExcel(employeeFilePath, errorHandler);
 
+        if (employees.isEmpty() && !errorHandler.hasErrors()) {
+            errorHandler.addError("No employees found in the Excel file or the file format is incorrect.");
+        }
+
+        Set<String> uniqueEgnSet = new HashSet<>();
+
         for (Employee employee : employees) {
+            String egn = employee.getEgn();
+            if (uniqueEgnSet.contains(egn)) {
+                errorHandler.addError("Duplicate EGN found: " + egn + ". Only one record will be imported.");
+                continue; // Пропускаме този запис и преминаваме към следващия
+            }
+
+            uniqueEgnSet.add(egn);
+
             City city = cityDAO.getCityByName(employee.getCity().getCityName());
             if (city == null) {
                 cityDAO.saveCity(employee.getCity());
@@ -53,7 +65,7 @@ public class EmployeeService {
             employeeDAO.saveEmployee(employee);
         }
 
-        errorHandler.displayErrors();
+        //errorHandler.displayErrors();
 
         if (!newNkpdCodes.isEmpty()) {
             StringBuilder message = new StringBuilder("The following new NKPD codes were added to the database without department and position information:\n");
@@ -72,4 +84,3 @@ public class EmployeeService {
         employeeDAO.clearEmployeesTable();
     }
 }
-

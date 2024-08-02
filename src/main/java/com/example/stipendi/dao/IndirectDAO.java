@@ -1,6 +1,6 @@
 package com.example.stipendi.dao;
 
-import com.example.stipendi.model.DirectlyOccupied;
+import com.example.stipendi.model.IndirectOccupied;
 import com.example.stipendi.util.DatabaseHandler;
 
 import java.sql.Connection;
@@ -10,11 +10,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DirectlyOccupiedDAO {
+public class IndirectDAO {
 
-    public List<DirectlyOccupied> getByYear(int year) {
-        String query = "SELECT * FROM directly_occupied WHERE year = ?";
-        List<DirectlyOccupied> results = new ArrayList<>();
+    public List<IndirectOccupied> getByYear(int year) {
+        String query = "SELECT * FROM indirect_occupied WHERE year = ?";
+        List<IndirectOccupied> results = new ArrayList<>();
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -23,7 +23,7 @@ public class DirectlyOccupiedDAO {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                DirectlyOccupied record = new DirectlyOccupied(
+                IndirectOccupied record = new IndirectOccupied(
                         resultSet.getInt("id"),
                         resultSet.getInt("year"),
                         resultSet.getInt("month"),
@@ -39,7 +39,7 @@ public class DirectlyOccupiedDAO {
     }
 
     public List<Integer> getAllYears() {
-        String query = "SELECT DISTINCT year FROM directly_occupied ORDER BY year";
+        String query = "SELECT DISTINCT year FROM indirect_occupied ORDER BY year";
         List<Integer> years = new ArrayList<>();
 
         try (Connection connection = DatabaseHandler.connect();
@@ -56,16 +56,15 @@ public class DirectlyOccupiedDAO {
         return years;
     }
 
-
-    public void saveDirectlyOccupied(DirectlyOccupied directlyOccupied) {
-        String query = "INSERT INTO directly_occupied (year, month, hours) VALUES (?, ?, ?)";
+    public void saveIndirectOccupied(IndirectOccupied indirectOccupied) {
+        String query = "INSERT INTO indirect_occupied (year, month, hours) VALUES (?, ?, ?)";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            preparedStatement.setInt(1, directlyOccupied.getYear());
-            preparedStatement.setInt(2, directlyOccupied.getMonth());
-            preparedStatement.setDouble(3, directlyOccupied.getHours());
+            preparedStatement.setInt(1, indirectOccupied.getYear());
+            preparedStatement.setInt(2, indirectOccupied.getMonth());
+            preparedStatement.setDouble(3, indirectOccupied.getHours());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -73,9 +72,9 @@ public class DirectlyOccupiedDAO {
         }
     }
 
-    public DirectlyOccupied getDirectlyOccupiedById(int id) {
-        String query = "SELECT * FROM directly_occupied WHERE id = ?";
-        DirectlyOccupied directlyOccupied = null;
+    public IndirectOccupied getIndirectOccupiedById(int id) {
+        String query = "SELECT * FROM indirect_occupied WHERE id = ?";
+        IndirectOccupied indirectOccupied = null;
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -84,53 +83,53 @@ public class DirectlyOccupiedDAO {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                directlyOccupied = new DirectlyOccupied();
-                directlyOccupied.setId(resultSet.getInt("id"));
-                directlyOccupied.setYear(resultSet.getInt("year"));
-                directlyOccupied.setMonth(resultSet.getInt("month"));
-                directlyOccupied.setHours(resultSet.getDouble("hours"));
+                indirectOccupied = new IndirectOccupied();
+                indirectOccupied.setId(resultSet.getInt("id"));
+                indirectOccupied.setYear(resultSet.getInt("year"));
+                indirectOccupied.setMonth(resultSet.getInt("month"));
+                indirectOccupied.setHours(resultSet.getDouble("hours"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return directlyOccupied;
+        return indirectOccupied;
     }
 
-    public List<DirectlyOccupied> getAllDirectlyOccupied() {
-        String query = "SELECT * FROM directly_occupied";
-        List<DirectlyOccupied> directlyOccupiedList = new ArrayList<>();
+    public List<IndirectOccupied> getAllIndirectOccupied() {
+        String query = "SELECT * FROM indirect_occupied";
+        List<IndirectOccupied> indirectOccupiedList = new ArrayList<>();
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                DirectlyOccupied directlyOccupied = new DirectlyOccupied();
-                directlyOccupied.setId(resultSet.getInt("id"));
-                directlyOccupied.setYear(resultSet.getInt("year"));
-                directlyOccupied.setMonth(resultSet.getInt("month"));
-                directlyOccupied.setHours(resultSet.getDouble("hours"));
+                IndirectOccupied indirectOccupied = new IndirectOccupied();
+                indirectOccupied.setId(resultSet.getInt("id"));
+                indirectOccupied.setYear(resultSet.getInt("year"));
+                indirectOccupied.setMonth(resultSet.getInt("month"));
+                indirectOccupied.setHours(resultSet.getDouble("hours"));
 
-                directlyOccupiedList.add(directlyOccupied);
+                indirectOccupiedList.add(indirectOccupied);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return directlyOccupiedList;
+        return indirectOccupiedList;
     }
 
-    public void updateDirectlyOccupied(DirectlyOccupied directlyOccupied) {
-        String query = "UPDATE directly_occupied SET year = ?, month = ?, hours = ? WHERE id = ?";
+    public void updateIndirectOccupied(IndirectOccupied indirectOccupied) {
+        String query = "UPDATE indirect_occupied SET year = ?, month = ?, hours = ? WHERE id = ?";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            preparedStatement.setInt(1, directlyOccupied.getYear());
-            preparedStatement.setInt(2, directlyOccupied.getMonth());
-            preparedStatement.setDouble(3, directlyOccupied.getHours());
-            preparedStatement.setInt(4, directlyOccupied.getId());
+            preparedStatement.setInt(1, indirectOccupied.getYear());
+            preparedStatement.setInt(2, indirectOccupied.getMonth());
+            preparedStatement.setDouble(3, indirectOccupied.getHours());
+            preparedStatement.setInt(4, indirectOccupied.getId());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -138,8 +137,8 @@ public class DirectlyOccupiedDAO {
         }
     }
 
-    public void deleteDirectlyOccupied(int id) {
-        String query = "DELETE FROM directly_occupied WHERE id = ?";
+    public void deleteIndirectOccupied(int id) {
+        String query = "DELETE FROM indirect_occupied WHERE id = ?";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {

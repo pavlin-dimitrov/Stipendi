@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @RequiredArgsConstructor
-public class AttendanceRecord {
+public class CheckInRecord {
     private int id;
     private String egn;
     private LocalDateTime entryTime;

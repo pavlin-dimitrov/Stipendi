@@ -22,6 +22,8 @@ public class Employee {
     private double transportBonus;
     private double fixedBonus;
     private String otherConditions;
+    private double daysOffDoo;
+    private double daysOffEmpl;
 
     private int totalOvertimeWeek;
     private int totalOvertimeWeekend;

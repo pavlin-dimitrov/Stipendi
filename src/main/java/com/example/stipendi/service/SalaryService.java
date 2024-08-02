@@ -21,12 +21,51 @@ public class SalaryService {
         this.appConfigVariableDAO = appConfigVariableDAO;
     }
 
-    public void updateEmployeeSalary(int month, int year){
+    public void updateEmployeeSalary(int month, int year) {
         updateProfessionalExperienceBonus();
-        updateOneTimeBonus(month, year);
         updateTransportBonus();
+        updateFixedBonus(month, year);
+        updateOneTimeBonus(month, year);
+        updateAchievementBonus();
         updateFinalSalary();
     }
+
+    private void updateAchievementBonus() {
+        List<Employee> employees = employeeDAO.getAllEmployees();
+        double achievementBonus = appConfigVariableDAO.getAppConfigVariableValueByName("achievementBonus");
+        double partOfFixedBonus = appConfigVariableDAO.getAppConfigVariableValueByName("partOfAchievementBonus");
+
+        employees.forEach(employee -> {
+            double totalDaysOff = employee.getDaysOffDoo() + employee.getDaysOffEmpl();
+
+            if (totalDaysOff > 0 && totalDaysOff < 2) {
+                employee.setAchievementBonus(achievementBonus - partOfFixedBonus);
+                System.out.println(employee.getFullName() + " / " + achievementBonus + " - " + partOfFixedBonus);
+            } else if (totalDaysOff >= 2) {
+                employee.setAchievementBonus(0);
+                System.out.println("Повече от 2 дни болничен");
+            } else if (employee.getOtherConditions().toLowerCase().contains("x")) {
+                employee.setAchievementBonus(0);
+                System.out.println("Съдържа се Х в Други условия");
+            } else {
+                employee.setAchievementBonus(achievementBonus);
+                System.out.println("100% Бонус");
+            }
+            employeeDAO.updateEmployee(employee);
+        });
+    }
+
+    private void updateFixedBonus(int month, int year) {
+        List<Employee> employees = employeeDAO.getAllEmployees();
+        int workedDays = workdayCalculator.getWorkdaysInMonth(month, year);
+
+
+        employees.forEach(employee -> {
+            employee.setFixedBonus((employee.getFixedBonus() / workedDays) * employee.getTotalWorkingDays());
+            employeeDAO.updateEmployee(employee);
+        });
+    }
+
 
     private void updateProfessionalExperienceBonus() {
         List<Employee> employees = employeeDAO.getAllEmployees();
@@ -39,7 +78,7 @@ public class SalaryService {
         });
     }
 
-    private void updateOneTimeBonus(int month, int year){
+    private void updateOneTimeBonus(int month, int year) {
         List<Employee> employees = employeeDAO.getAllEmployees();
 
         employees.stream().forEach(employee -> {
@@ -50,41 +89,41 @@ public class SalaryService {
                     (workdayCalculator.getWorkdaysInMonth(month, year) * 8.0));
 
             double nightShift = 0;
-            if (employee.getOtherConditions().equals("C") || employee.getOtherConditions().equals("")){
-                nightShift = employee.getTotalOvertimeWeek() * appConfigVariableDAO.getAppConfigVariableByName("nightShift");
+            if (employee.getOtherConditions().equals("C") || employee.getOtherConditions().equals("")) {
+                nightShift = employee.getTotalOvertimeWeek() * appConfigVariableDAO.getAppConfigVariableValueByName("nightShift");
             }
 
             double oneTimeBonus = ((hourPayment * employee.getTotalOvertimeWeek()) *
-                    appConfigVariableDAO.getAppConfigVariableByName("overtimeWeek")) +
+                    appConfigVariableDAO.getAppConfigVariableValueByName("overtimeWeek")) +
                     ((hourPayment * employee.getTotalOvertimeWeekend()) *
-                     appConfigVariableDAO.getAppConfigVariableByName("overtimeWeekend")) + nightShift;
+                            appConfigVariableDAO.getAppConfigVariableValueByName("overtimeWeekend")) + nightShift;
             employee.setOneTimeBonus(oneTimeBonus);
             employeeDAO.updateEmployee(employee);
         });
     }
 
-    private void updateTransportBonus(){
+    private void updateTransportBonus() {
         List<Employee> employees = employeeDAO.getAllEmployees();
 
-            employees.stream().forEach(employee -> {
-                double transportBonus = 0;
+        employees.stream().forEach(employee -> {
+            double transportBonus = 0;
 
-                if (employee.getCity() != null && !employee.getCity().getCityName().equals("Враца")) {
-                    double distance = employee.getCity().getDistance();
-                    int workingDays = employee.getTotalWorkingDays();
-                    double fuelRate = getAppConfigVariableDAO().getAppConfigVariableByName("fuel");
+            if (employee.getCity() != null && !employee.getCity().getCityName().equals("Враца")) {
+                double distance = employee.getCity().getDistance();
+                int workingDays = employee.getTotalWorkingDays();
+                double fuelRate = getAppConfigVariableDAO().getAppConfigVariableValueByName("fuel");
 
-                    if ((distance * 2) - 30 > 0) {
-                        transportBonus = ((distance * 2) - 30) * workingDays * fuelRate;
-                    }
+                if ((distance * 2) - 30 > 0) {
+                    transportBonus = ((distance * 2) - 30) * workingDays * fuelRate;
                 }
+            }
 
-                employee.setTransportBonus(transportBonus);
-                employeeDAO.updateEmployee(employee);
-            });
+            employee.setTransportBonus(transportBonus);
+            employeeDAO.updateEmployee(employee);
+        });
     }
 
-    private void updateFinalSalary(){
+    private void updateFinalSalary() {
         List<Employee> employees = employeeDAO.getAllEmployees();
 
         employees.stream().forEach(employee -> {

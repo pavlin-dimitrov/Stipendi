@@ -51,7 +51,7 @@ public class AppConfigVariableDAO {
         return appConfigVariable;
     }
 
-    public double getAppConfigVariableByName(String variableName) {
+    public double getAppConfigVariableValueByName(String variableName) {
         String query = "SELECT * FROM app_config_variables WHERE variable_name = ?";
         AppConfigVariable appConfigVariable = null;
 
@@ -72,7 +72,32 @@ public class AppConfigVariableDAO {
             e.printStackTrace();
         }
 
+        assert appConfigVariable != null;
         return appConfigVariable.getVariableValue();
+    }
+
+    public AppConfigVariable getAppConfigVariableByName(String variableName) {
+        String query = "SELECT * FROM app_config_variables WHERE variable_name = ?";
+        AppConfigVariable appConfigVariable = null;
+
+        try (Connection connection = DatabaseHandler.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, variableName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                appConfigVariable = new AppConfigVariable(
+                        resultSet.getInt("id"),
+                        resultSet.getString("variable_name"),
+                        resultSet.getDouble("variable_value")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return appConfigVariable;
     }
 
     public List<AppConfigVariable> getAllAppConfigVariables() {
