@@ -169,7 +169,8 @@ public class MainController {
         int month = selectedDate.getMonthValue();
         int year = selectedDate.getYear();
 
-        salaryService.updateEmployeeSalary(month, year);
+        errorHandler.clearErrors();
+        salaryService.updateEmployeeSalary(month, year, errorHandler);
         directIndirectService.updateIndirectOccupied(month, year);
         directIndirectService.updateDirectlyOccupied(month, year);
     }

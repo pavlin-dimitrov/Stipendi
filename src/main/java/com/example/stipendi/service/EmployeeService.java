@@ -9,9 +9,7 @@ import com.example.stipendi.model.Occupation;
 import com.example.stipendi.excel.EmployeeExcelReader;
 import com.example.stipendi.util.contract.ErrorHandler;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class EmployeeService {
 
@@ -29,21 +27,21 @@ public class EmployeeService {
 
     public void importEmployeesFromExcel(String employeeFilePath, ErrorHandler errorHandler) {
         List<Employee> employees = EmployeeExcelReader.readEmployeesFromExcel(employeeFilePath, errorHandler);
-
         if (employees.isEmpty() && !errorHandler.hasErrors()) {
             errorHandler.addError("No employees found in the Excel file or the file format is incorrect.");
         }
 
-        Set<String> uniqueEgnSet = new HashSet<>();
-
+        Map<String, Employee> uniqueEgnMap = new LinkedHashMap<>();
         for (Employee employee : employees) {
             String egn = employee.getEgn();
-            if (uniqueEgnSet.contains(egn)) {
-                errorHandler.addError("Duplicate EGN found: " + egn + ". Only one record will be imported.");
-                continue; // Пропускаме този запис и преминаваме към следващия
+            if (uniqueEgnMap.containsKey(egn)) {
+                Employee existingEmployee = uniqueEgnMap.get(egn);
+                errorHandler.addError("Duplicate EGN found: " + egn + " - " + employee.getFullName() + " .");
+                errorHandler.addError("First encountered NKPD (will be saved): " + existingEmployee.getOccupation().getNkpd());
+                errorHandler.addError("Duplicate NKPD (will be ignored): " + employee.getOccupation().getNkpd());
+                continue;
             }
-
-            uniqueEgnSet.add(egn);
+            uniqueEgnMap.put(egn, employee);
 
             City city = cityDAO.getCityByName(employee.getCity().getCityName());
             if (city == null) {
@@ -61,16 +59,15 @@ public class EmployeeService {
                 occupation = occupationDAO.getOccupationByNKPD(employee.getOccupation().getNkpd());
             }
             employee.setOccupation(occupation);
-
-            employeeDAO.saveEmployee(employee);
         }
 
-        //errorHandler.displayErrors();
+        for (Employee employee : uniqueEgnMap.values()) {
+            employeeDAO.saveEmployee(employee);
+        }
 
         if (!newNkpdCodes.isEmpty()) {
             StringBuilder message = new StringBuilder("The following new NKPD codes were added to the database without department and position information:\n");
             newNkpdCodes.forEach(nkpd -> message.append(nkpd).append("\n"));
-
             errorHandler.addError(message.toString());
         }
     }

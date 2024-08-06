@@ -14,54 +14,78 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CheckInExcelReader extends ExcelReader {
 
-    public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<Employee> employees, ErrorHandler errorHandler) {
-        List<CheckInRecord> checkInRecords = new ArrayList<>();
+public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<Employee> employees, ErrorHandler errorHandler) {
+    List<CheckInRecord> checkInRecords = new ArrayList<>();
+    try (Workbook workbook = ExcelFileUtil.getWorkbook(filePath)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        for (Row row : sheet) {
+            if (row.getRowNum() == 0 || isRowEmpty(row)) continue; // Пропускаме заглавния ред и празни редове
+            CheckInRecord record = new CheckInRecord();
+            String egn = getStringCellValue(row.getCell(1));
+            if (egn == null || egn.isEmpty()) {
+                continue; // Пропускаме редове без ЕГН
+            }
+            record.setEgn(egn);
 
-        try (Workbook workbook = ExcelFileUtil.getWorkbook(filePath)) {
-            Sheet sheet = workbook.getSheetAt(0);
-            for (Row row : sheet) {
-                if (row.getRowNum() == 0 || isRowEmpty(row)) continue; // Пропускаме заглавния ред и празни редове
+            LocalDateTime entryTime = null;
+            LocalDateTime exitTime = null;
+            boolean isExitTimeEmpty = false;
 
-                CheckInRecord record = new CheckInRecord();
+            try {
+                entryTime = parseDate(row.getCell(3), errorHandler, row.getRowNum() + 1);
+                record.setEntryTime(entryTime);
+            } catch (Exception e) {
+                errorHandler.addError("Invalid entry time format at row " + (row.getRowNum() + 1) + ": " + e.getMessage());
+            }
 
-                String egn = getStringCellValue(row.getCell(1));
-                if (egn == null || egn.isEmpty()) {
-                    continue; // Пропускаме редове без ЕГН
-                }
-                record.setEgn(egn);
-
+            Cell exitTimeCell = row.getCell(4);
+            if (exitTimeCell == null || exitTimeCell.getCellType() == CellType.BLANK) {
+                isExitTimeEmpty = true;
+            } else {
                 try {
-                    record.setEntryTime(parseDate(row.getCell(3), errorHandler, row.getRowNum() + 1));
-                    record.setExitTime(parseDate(row.getCell(4), errorHandler, row.getRowNum() + 1));
+                    exitTime = parseDate(exitTimeCell, errorHandler, row.getRowNum() + 1);
+                    record.setExitTime(exitTime);
                 } catch (Exception e) {
-                    errorHandler.addError("Invalid date format at row " + (row.getRowNum() + 1) + ": " + e.getMessage());
-                    continue;
+                    // Не добавяме грешка, просто оставяме exitTime като null
+                    isExitTimeEmpty = true;
                 }
+            }
 
+            // Продължаваме само ако имаме валидно време на влизане
+            if (entryTime != null) {
                 WorkShift workShift = new WorkShift();
                 workShift.setType(getStringCellValue(row.getCell(5)));
                 record.setWorkShift(workShift);
 
-                record.setRegularHours(parseDuration(row.getCell(6), errorHandler, row.getRowNum() + 1));
-                record.setOvertimeHours(parseDuration(row.getCell(7), errorHandler, row.getRowNum() + 1));
-                record.setTotalHours(parseDuration(row.getCell(8), errorHandler, row.getRowNum() + 1));
+                if (isExitTimeEmpty) {
+                    // Ако времето на излизане е празно, задаваме 0 на всички продължителности
+                    record.setRegularHours(0);
+                    record.setOvertimeHours(0);
+                    record.setTotalHours(0);
+                } else {
+                    // Използваме вашия parseDuration метод
+                    record.setRegularHours(parseDuration(row.getCell(6), errorHandler, row.getRowNum() + 1));
+                    record.setOvertimeHours(parseDuration(row.getCell(7), errorHandler, row.getRowNum() + 1));
+                    record.setTotalHours(parseDuration(row.getCell(8), errorHandler, row.getRowNum() + 1));
+                }
 
                 checkInRecords.add(record);
+            } else {
+                errorHandler.addError("Skipping row " + (row.getRowNum() + 1) + " due to missing entry time.");
             }
-
-        } catch (IOException | IllegalArgumentException e) {
-            errorHandler.addError(e.getMessage());
         }
-
-        updateEmployeeCheckIn(employees, checkInRecords, errorHandler);
-
-        return employees;
+    } catch (IOException | IllegalArgumentException e) {
+        errorHandler.addError(e.getMessage());
     }
+    updateEmployeeCheckIn(employees, checkInRecords, errorHandler);
+    return employees;
+}
 
     private static boolean isRowEmpty(Row row) {
         for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
@@ -163,6 +187,11 @@ public class CheckInExcelReader extends ExcelReader {
     private static OvertimeResult calculateOvertimeSaturday(LocalDateTime startDate, LocalDateTime endDate, double regularHours, String employeeId) {
         OvertimeResult result = new OvertimeResult(0);
 
+        if (startDate == null || endDate == null) {
+            result.addError(String.format("Липсващо време на влизане или излизане за служител %s.", employeeId));
+            return result;
+        }
+
         if (!isSaturday(startDate.getDayOfWeek())) {
             result.addError(String.format("ГРЕШКА: Невалиден ден за съботен извънреден труд за служител %s на дата %s",
                     employeeId, startDate.toLocalDate()));
@@ -190,6 +219,11 @@ public class CheckInExcelReader extends ExcelReader {
         final double ROUNDING_THRESHOLD = 49.0 / 60.0; // 49 минути в часове
 
         OvertimeResult result = new OvertimeResult(0);
+
+        if (startDate == null || endDate == null) {
+            result.addError(String.format("Липсващо време на влизане или излизане за служител %s.", employeeId));
+            return result;
+        }
 
         // Проверка на разликата в датите в минути
         long dateDifferenceMinutes = ChronoUnit.MINUTES.between(startDate, endDate);

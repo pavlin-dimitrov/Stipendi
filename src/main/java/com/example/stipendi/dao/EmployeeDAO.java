@@ -130,11 +130,7 @@ public class EmployeeDAO {
             preparedStatement.setInt(19, employee.getId());
 
             int rowsUpdated = preparedStatement.executeUpdate();
-            if (rowsUpdated > 0) {
-                System.out.println("Employee " + employee.getFullName() + " updated successfully.");
-            } else {
-                System.out.println("No employee found with id: " + employee.getId());
-            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
