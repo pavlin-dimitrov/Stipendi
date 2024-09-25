@@ -37,8 +37,19 @@ public class EmployeeService {
             if (uniqueEgnMap.containsKey(egn)) {
                 Employee existingEmployee = uniqueEgnMap.get(egn);
                 errorHandler.addError("Duplicate EGN found: " + egn + " - " + employee.getFullName() + " .");
-                errorHandler.addError("First encountered NKPD (will be saved): " + existingEmployee.getOccupation().getNkpd());
-                errorHandler.addError("Duplicate NKPD (will be ignored): " + employee.getOccupation().getNkpd());
+                errorHandler.addError("First encountered NKPD: " + existingEmployee.getOccupation().getNkpd());
+                errorHandler.addError("Duplicate NKPD: " + employee.getOccupation().getNkpd());
+
+                // Комбиниране на информацията за заплатата
+                double existingBaseSalary = existingEmployee.getBaseSalary();
+                double newBaseSalary = employee.getBaseSalary();
+
+                if (existingBaseSalary == 0 && newBaseSalary != 0) {
+                    existingEmployee.setBaseSalary(newBaseSalary);
+                } else if (existingBaseSalary != 0 && newBaseSalary != 0) {
+                    existingEmployee.setBaseSalary(existingBaseSalary + newBaseSalary);
+                }
+
                 continue;
             }
             uniqueEgnMap.put(egn, employee);

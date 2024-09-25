@@ -115,6 +115,23 @@ public class CityDAO {
         }
     }
 
+    public int getEmployeeCountByCity(int cityId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM employees WHERE city_id = ?";
+
+        try (Connection connection = DatabaseHandler.connect();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, cityId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+
+        return 0;
+    }
+
+
     private boolean cityExists(String city_name) {
         String query = "SELECT COUNT(*) FROM cities WHERE city_name = ?";
 

@@ -198,11 +198,21 @@ public class CityController {
         }
 
         try {
+            // Проверка за свързани служители
+            int employeeCount = cityDAO.getEmployeeCountByCity(selectedCity.getId());
+
+            if (employeeCount > 0) {
+                // Ако има свързани служители, покажи съобщение на потребителя
+                errorLabel.setText("Градът не може да бъде изтрит, докато има свързани служители. Моля, рестартирайте приложението. Това ще нулира базата данни.");
+                return;
+            }
+
+            // Ако няма свързани служители, продължи с изтриването
             cityDAO.deleteCity(selectedCity.getId());
 
             cityNameField.clear();
             distanceField.clear();
-            errorLabel.setText("");
+            errorLabel.setText("Градът е успешно изтрит.");
             loadTableData();
             btnAdd.setDisable(false);
             btnUpdate.setDisable(true);

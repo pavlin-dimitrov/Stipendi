@@ -22,8 +22,8 @@
             <Button prefHeight="25.0" prefWidth="105.0" fx:id="btnDelete" onAction="#handleDeleteCity"
                     text="Delete"/>
         </HBox>
-        <Label fx:id="errorLabel" textFill="red"/>
         <Button prefHeight="25.0" prefWidth="105.0" onAction="#handleBackButton" text="Back"/>
+        <Label fx:id="errorLabel" textFill="red" wrapText="true" maxWidth="Infinity"/>
     </VBox>
 
     <TableView fx:id="cityTable" HBox.hgrow="ALWAYS">

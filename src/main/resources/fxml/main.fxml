@@ -8,7 +8,7 @@
     <top>
         <ButtonBar prefHeight="40.0" prefWidth="725.0" BorderPane.alignment="CENTER">
             <buttons>
-                <Button fx:id="generateReportButton" prefHeight="25.0" prefWidth="160.0" text="Stipendi" />
+                <Button fx:id="generateReportButton" prefHeight="25.0" prefWidth="160.0" text="Export Stipendi" />
                 <Button fx:id="generateReportDirettiIndiretti" prefHeight="25.0" prefWidth="160.0" text="Diret/Indiret" />
                 <Button fx:id="appConfigVariables" prefHeight="25.0" prefWidth="160.0" text="Variables" />
                 <Button fx:id="occupation" prefHeight="25.0" prefWidth="160.0" text="Occupation" />
@@ -37,13 +37,13 @@
                 <Label fx:id="lblCalendar" prefHeight="17.0" prefWidth="160.0" text="Select Month and Year:" />
                 <DatePicker fx:id="monthYearPicker" prefHeight="25.0" prefWidth="140.0" />
             </HBox>
-            <HBox>
-                <Button fx:id="calculateButton" contentDisplay="RIGHT" prefHeight="25.0" maxWidth="Infinity" text="Calculate" HBox.hgrow="ALWAYS" />
-            </HBox>
             <HBox spacing="10">
                 <Label fx:id="lblReport" prefHeight="17.0" prefWidth="160.0" text="Reports Folder:" />
                 <TextField fx:id="reportsFolderPath" editable="false" prefHeight="25.0" prefWidth="405.0" HBox.hgrow="ALWAYS" />
                 <Button fx:id="selectFolderButton" prefHeight="25.0" prefWidth="140.0" text="Select Folder" />
+            </HBox>
+            <HBox>
+                <Button fx:id="calculateButton" contentDisplay="RIGHT" prefHeight="25.0" maxWidth="Infinity" text="Calculate" HBox.hgrow="ALWAYS" />
             </HBox>
             <Label fx:id="errorLabel" textFill="red" />
             <TextArea fx:id="errorTextArea" prefHeight="330.0" prefWidth="405.0" wrapText="true" VBox.vgrow="ALWAYS" />

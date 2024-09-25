@@ -23,11 +23,11 @@ public class SalaryService {
     }
 
     public void updateEmployeeSalary(int month, int year, ErrorHandler errorHandler) {
-        updateProfessionalExperienceBonus(errorHandler);
         updateTransportBonus(errorHandler);
+        updateProfessionalExperienceBonus(errorHandler);
+        updateBaseSalary(month, year, errorHandler);
         updateOneTimeBonus(month, year, errorHandler);
         updateFixedBonus(month, year, errorHandler);
-        updateBaseSalary(month, year, errorHandler);
         updateAchievementBonus(errorHandler);
         updateFinalSalary(errorHandler);
     }
@@ -46,6 +46,8 @@ public class SalaryService {
                 employee.setAchievementBonus(0);
             } else if (employee.getOtherConditions().toLowerCase().contains("x")) {
                 employee.setAchievementBonus(0);
+            } else if (employee.getOtherConditions().toLowerCase().contains("y")) {
+                employee.setAchievementBonus(achievementBonus - partOfFixedBonus);
             } else {
                 employee.setAchievementBonus(achievementBonus);
             }
@@ -56,6 +58,9 @@ public class SalaryService {
 
     private void updateOneTimeBonus(int month, int year, ErrorHandler errorHandler) {
         List<Employee> employees = employeeDAO.getAllEmployees();
+        double nightShiftRate = appConfigVariableDAO.getAppConfigVariableValueByName("nightShift");
+        double overtimeWeekRate = appConfigVariableDAO.getAppConfigVariableValueByName("overtimeWeek");
+        double overtimeWeekendRate = appConfigVariableDAO.getAppConfigVariableValueByName("overtimeWeekend");
 
         employees.stream().forEach(employee -> {
             double experienceBonus = (employee.getBaseSalary() + employee.getFixedBonus()) *
@@ -66,13 +71,11 @@ public class SalaryService {
 
             double nightShift = 0;
             if (employee.getOtherConditions().toLowerCase().contains("c") || employee.getOtherConditions().equals("")) {
-                nightShift = employee.getTotalOvertimeWeek() * appConfigVariableDAO.getAppConfigVariableValueByName("nightShift");
+                nightShift = employee.getTotalOvertimeWeek() * nightShiftRate;
             }
 
-            double oneTimeBonus = ((hourPayment * employee.getTotalOvertimeWeek()) *
-                    appConfigVariableDAO.getAppConfigVariableValueByName("overtimeWeek")) +
-                    ((hourPayment * employee.getTotalOvertimeWeekend()) *
-                            appConfigVariableDAO.getAppConfigVariableValueByName("overtimeWeekend")) + nightShift;
+            double oneTimeBonus = ((hourPayment * employee.getTotalOvertimeWeek()) * overtimeWeekRate) +
+                    ((hourPayment * employee.getTotalOvertimeWeekend()) * overtimeWeekendRate) + nightShift;
 
             if (employee.getOtherConditions().toLowerCase().contains("i") && !employee.getOtherConditions().toLowerCase().contains("p")) {
                 oneTimeBonus = 0;
@@ -85,28 +88,31 @@ public class SalaryService {
     }
 
     private void updateFixedBonus(int month, int year, ErrorHandler errorHandler) {
-        List<Employee> employees = employeeDAO.getAllEmployees();
-        int workedDays = workdayCalculator.getWorkdaysInMonth(month, year);
+    List<Employee> employees = employeeDAO.getAllEmployees();
+    int workingDays = workdayCalculator.getWorkdaysInMonth(month, year);
 
+    for (Employee employee : employees) {
+        int workedDays;
+        if (employee.getTotalWorkingDays() > workingDays) {
+            workedDays = workingDays;
+        } else {
+            workedDays = employee.getTotalWorkingDays();
+        }
 
-        employees.forEach(employee -> {
-            employee.setFixedBonus((employee.getFixedBonus() / workedDays) * employee.getTotalWorkingDays());
-            employeeDAO.updateEmployee(employee);
-        });
-        errorHandler.addError("Fixed Bonus calculated for " + workedDays + " working days");
+        // Ако workedDays < workingDays, изваждаме съботите
+        if (workedDays < workingDays) {
+            workedDays -= employee.getWeekend();
+        }
+
+        // Изчисляваме дневната ставка на бонуса и новия фиксиран бонус
+        double dailyBonusRate = employee.getFixedBonus() / (double) workingDays;
+        double newFixedBonus = dailyBonusRate * workedDays;
+
+        employee.setFixedBonus(newFixedBonus);
+        employeeDAO.updateEmployee(employee);
     }
-
-    private void updateProfessionalExperienceBonus(ErrorHandler errorHandler) {
-        List<Employee> employees = employeeDAO.getAllEmployees();
-
-        employees.stream().forEach(employee -> {
-            double experienceBonus = (employee.getBaseSalary() + employee.getFixedBonus()) *
-                    (employee.getProfessionalExperienceRate() / 100);
-            employee.setProfessionalExperienceBonus(experienceBonus);
-            employeeDAO.updateEmployee(employee);
-        });
-        errorHandler.addError("Professional Experience Bonus calculated!");
-    }
+    errorHandler.addError("Fixed Bonus calculated for " + workdayCalculator.getWorkdaysInMonth(month, year) + " working days.");
+}
 
     private void updateTransportBonus(ErrorHandler errorHandler) {
         List<Employee> employees = employeeDAO.getAllEmployees();
@@ -132,29 +138,71 @@ public class SalaryService {
 
     private void updateBaseSalary(int month, int year, ErrorHandler errorHandler) {
         List<Employee> employees = employeeDAO.getAllEmployees();
-        int workedDays = workdayCalculator.getWorkdaysInMonth(month, year);
+        int workingDays = workdayCalculator.getWorkdaysInMonth(month, year);
 
-        employees.forEach(employee -> {
-            employee.setBaseSalary((employee.getBaseSalary() / workedDays) * employee.getTotalWorkingDays());
+        for (Employee employee : employees) {
+            int workedDays;
+            if (employee.getTotalWorkingDays() > workingDays) {
+                workedDays = workingDays;
+            } else {
+                workedDays = employee.getTotalWorkingDays();
+            }
+
+            // Ако workedDays < workingDays, изваждаме съботите
+            if (workedDays < workingDays) {
+                workedDays -= employee.getWeekend();
+            }
+
+            // Изчисляваме дневната ставка на заплатата и новата основна заплата
+            double dailyRate = employee.getBaseSalary() / (double) workingDays;
+            double newBaseSalary = dailyRate * workedDays;
+
+            employee.setBaseSalary(newBaseSalary);
+            employeeDAO.updateEmployee(employee);
+        }
+
+        errorHandler.addError("Base Salary Calculated!");
+    }
+
+    private void updateProfessionalExperienceBonus(ErrorHandler errorHandler) {
+        List<Employee> employees = employeeDAO.getAllEmployees();
+
+        employees.stream().forEach(employee -> {
+            double experienceBonus = (employee.getBaseSalary() + employee.getFixedBonus()) *
+                    (employee.getProfessionalExperienceRate() / 100);
+            employee.setProfessionalExperienceBonus(experienceBonus);
             employeeDAO.updateEmployee(employee);
         });
-        errorHandler.addError("Base Salary Calculated!");
+        errorHandler.addError("Professional Experience Bonus calculated!");
     }
 
     private void updateFinalSalary(ErrorHandler errorHandler) {
         List<Employee> employees = employeeDAO.getAllEmployees();
 
         employees.stream().forEach(employee -> {
-            double finalSalary = employee.getBaseSalary() +
-                    employee.getProfessionalExperienceBonus() +
-                    employee.getAchievementBonus() +
-                    employee.getOneTimeBonus() +
-                    employee.getTransportBonus() +
-                    employee.getFixedBonus();
-
-            employee.setFinalSalary(finalSalary);
-            employeeDAO.updateEmployee(employee);
+            try {
+                double finalSalary = calculateFinalSalary(employee);
+                employee.setFinalSalary(finalSalary);
+                employeeDAO.updateEmployee(employee);
+            } catch (Exception e) {
+                errorHandler.addError("Error calculating final salary for employee: " + employee.getId() + " - " + e.getMessage());
+            }
         });
-        errorHandler.addError("Final Salary Calculated!");
+
+        errorHandler.addError("Final Salary Calculated for all employees!");
     }
+
+    private double calculateFinalSalary(Employee employee) {
+        if (employee.getTotalWorkingDays() == 0) {
+            return 0;
+        }
+
+        return employee.getBaseSalary() +
+                employee.getProfessionalExperienceBonus() +
+                employee.getAchievementBonus() +
+                employee.getOneTimeBonus() +
+                employee.getTransportBonus() +
+                employee.getFixedBonus();
+    }
+
 }

@@ -25,7 +25,7 @@ public class EmployeeDAO {
         String query = "INSERT INTO employees (egn, full_name, city_id, occupation_id, base_salary, " +
                 "professional_experience_rate, professional_experience_bonus, achievement_bonus, one_time_bonus, " +
                 "transport_bonus, fixed_bonus, other_conditions, days_off_doo, days_off_empl, total_overtime_week, total_overtime_weekend, " +
-                "total_working_days, final_salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "total_working_days, weekend, final_salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -47,7 +47,8 @@ public class EmployeeDAO {
             preparedStatement.setInt(15, employee.getTotalOvertimeWeek());
             preparedStatement.setInt(16, employee.getTotalOvertimeWeekend());
             preparedStatement.setInt(17, employee.getTotalWorkingDays());
-            preparedStatement.setDouble(18, employee.getFinalSalary());
+            preparedStatement.setInt(18, employee.getWeekend());
+            preparedStatement.setDouble(19, employee.getFinalSalary());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -88,6 +89,7 @@ public class EmployeeDAO {
                 employee.setTotalOvertimeWeek(resultSet.getInt("total_overtime_week"));
                 employee.setTotalOvertimeWeekend(resultSet.getInt("total_overtime_weekend"));
                 employee.setTotalWorkingDays(resultSet.getInt("total_working_days"));
+                employee.setWeekend(resultSet.getInt("weekend"));
                 employee.setFinalSalary(resultSet.getDouble("final_salary"));
 
                 employees.add(employee);
@@ -104,7 +106,7 @@ public class EmployeeDAO {
                 "professional_experience_rate = ?, professional_experience_bonus = ?, achievement_bonus = ?, " +
                 "one_time_bonus = ?, transport_bonus = ?, fixed_bonus = ?, other_conditions = ?, " +
                 "days_off_doo = ?, days_off_empl = ?, total_overtime_week = ?, total_overtime_weekend = ?, " +
-                "total_working_days = ?, final_salary = ? WHERE id = ?";
+                "total_working_days = ?, weekend = ?, final_salary = ? WHERE id = ?";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -126,8 +128,9 @@ public class EmployeeDAO {
             preparedStatement.setInt(15, employee.getTotalOvertimeWeek());
             preparedStatement.setInt(16, employee.getTotalOvertimeWeekend());
             preparedStatement.setInt(17, employee.getTotalWorkingDays());
-            preparedStatement.setDouble(18, employee.getFinalSalary());
-            preparedStatement.setInt(19, employee.getId());
+            preparedStatement.setInt(18, employee.getWeekend());
+            preparedStatement.setDouble(19, employee.getFinalSalary());
+            preparedStatement.setInt(20, employee.getId());
 
             int rowsUpdated = preparedStatement.executeUpdate();
 
@@ -137,7 +140,7 @@ public class EmployeeDAO {
     }
 
     public void updateEmployeeAttendance(Employee employee) {
-        String query = "UPDATE employees SET total_overtime_week = ?, total_overtime_weekend = ?, total_working_days = ? WHERE egn = ?";
+        String query = "UPDATE employees SET total_overtime_week = ?, total_overtime_weekend = ?, total_working_days = ?, weekend = ? WHERE egn = ?";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -145,7 +148,8 @@ public class EmployeeDAO {
             preparedStatement.setInt(1, employee.getTotalOvertimeWeek());
             preparedStatement.setInt(2, employee.getTotalOvertimeWeekend());
             preparedStatement.setInt(3, employee.getTotalWorkingDays());
-            preparedStatement.setString(4, employee.getEgn());
+            preparedStatement.setInt(4, employee.getWeekend());
+            preparedStatement.setString(5, employee.getEgn());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {

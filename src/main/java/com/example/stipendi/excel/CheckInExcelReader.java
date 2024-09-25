@@ -143,44 +143,52 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
                     .filter(record -> record.getEgn().equals(employee.getEgn()))
                     .collect(Collectors.toList());
 
+            int totalWorkingDays = calculateTotalWorkdays(employeeRecords);
             int totalOvertimeWeek = 0;
             int totalOvertimeWeekend = 0;
-            int totalWorkingDays = calculateTotalWorkdays(employeeRecords);
+            int weekendDays = 0;
 
             for (CheckInRecord record : employeeRecords) {
-                if (isSaturday(record.getEntryTime().getDayOfWeek())) {
-                    OvertimeResult saturdayResult = calculateOvertimeSaturday(
-                            record.getEntryTime(),
-                            record.getExitTime(),
-                            record.getRegularHours(),
-                            employee.getEgn());
-                    totalOvertimeWeekend += saturdayResult.getOvertimeHours();
-                    if (saturdayResult.hasErrors()) {
-                        for (String error : saturdayResult.getErrors()) {
-                            errorHandler.addError(error);
+                if (record.getEntryTime() != null) {
+                    if (isSaturday(record.getEntryTime().getDayOfWeek())) {
+                        weekendDays++;
+                        OvertimeResult saturdayResult = calculateOvertimeSaturday(
+                                record.getEntryTime(),
+                                record.getExitTime(),
+                                record.getRegularHours(),
+                                employee.getEgn());
+                        totalOvertimeWeekend += saturdayResult.getOvertimeHours();
+                        if (saturdayResult.hasErrors()) {
+                            for (String error : saturdayResult.getErrors()) {
+                                errorHandler.addError(error);
+                            }
                         }
-                    }
-                } else {
-                    OvertimeResult weekResult = calculateOvertimeWeek(
-                            record.getEntryTime(),
-                            record.getExitTime(),
-                            record.getRegularHours(),
-                            record.getOvertimeHours(),
-                            record.getTotalHours(),
-                            record.getWorkShift().getType(),
-                            employee.getEgn());
-                    totalOvertimeWeek += weekResult.getOvertimeHours();
-                    if (weekResult.hasErrors()) {
-                        for (String error : weekResult.getErrors()) {
-                            errorHandler.addError(error);
+                    } else {
+                        OvertimeResult weekResult = calculateOvertimeWeek(
+                                record.getEntryTime(),
+                                record.getExitTime(),
+                                record.getRegularHours(),
+                                record.getOvertimeHours(),
+                                record.getTotalHours(),
+                                record.getWorkShift().getType(),
+                                employee.getEgn());
+                        totalOvertimeWeek += weekResult.getOvertimeHours();
+                        if (weekResult.hasErrors()) {
+                            for (String error : weekResult.getErrors()) {
+                                errorHandler.addError(error);
+                            }
                         }
                     }
                 }
             }
 
+            // Изчисляваме действителните работни дни, като извадим съботните дни от общия брой
+            int actualWorkingDays = totalWorkingDays - weekendDays;
+
             employee.setTotalOvertimeWeek(totalOvertimeWeek);
             employee.setTotalOvertimeWeekend(totalOvertimeWeekend);
             employee.setTotalWorkingDays(totalWorkingDays);
+            employee.setWeekend(weekendDays);
         }
     }
 
