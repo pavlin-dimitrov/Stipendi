@@ -126,4 +126,20 @@ public class OccupationDAO {
 
         return occupation;
     }
+
+    public int getEmployeeCountByOccupation(int occupationId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM employees WHERE occupation_id = ?";
+
+        try (Connection connection = DatabaseHandler.connect();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, occupationId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+
+        return 0;
+    }
 }

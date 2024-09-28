@@ -8,6 +8,7 @@ import com.example.stipendi.model.Employee;
 import com.example.stipendi.model.IndirectOccupied;
 
 import java.util.List;
+import java.util.Optional;
 
 public class DirectIndirectService {
 
@@ -23,31 +24,57 @@ public class DirectIndirectService {
 
     public void updateDirectlyOccupied(int month, int year) {
         List<Employee> employees = employeeDAO.getAllEmployees();
-        double totalDirectlyOccupiedHours = employees.stream()
-                .filter(employee -> "P".equals(employee.getOtherConditions()) || "".equals(employee.getOtherConditions()))
-                .mapToDouble(employee -> (employee.getTotalWorkingDays() * 8.0) + employee.getTotalOvertimeWeek() + employee.getTotalOvertimeWeekend())
-                .sum();
+        double totalDirectlyOccupiedHours = calculateDirectlyOccupiedHours(employees);
 
-        DirectlyOccupied directlyOccupied = new DirectlyOccupied();
-        directlyOccupied.setYear(year);
-        directlyOccupied.setMonth(month);
-        directlyOccupied.setHours(totalDirectlyOccupiedHours);
+        Optional<DirectlyOccupied> existingRecord = directlyDAO.findByMonthAndYear(month, year);
 
-        directlyDAO.saveDirectlyOccupied(directlyOccupied);
+        if (existingRecord.isPresent()) {
+            DirectlyOccupied directlyOccupied = existingRecord.get();
+            directlyOccupied.setHours(totalDirectlyOccupiedHours);
+            directlyDAO.updateDirectlyOccupied(directlyOccupied);
+        } else {
+            DirectlyOccupied newDirectlyOccupied = new DirectlyOccupied();
+            newDirectlyOccupied.setYear(year);
+            newDirectlyOccupied.setMonth(month);
+            newDirectlyOccupied.setHours(totalDirectlyOccupiedHours);
+            directlyDAO.saveDirectlyOccupied(newDirectlyOccupied);
+        }
     }
 
     public void updateIndirectOccupied(int month, int year) {
         List<Employee> employees = employeeDAO.getAllEmployees();
-        double totalIndirectOccupiedHours = employees.stream()
-                .filter(employee -> "I".equals(employee.getOtherConditions().trim()) || "C".equals(employee.getOtherConditions().trim()))
-                .mapToDouble(employee -> (employee.getTotalWorkingDays() * 8.0) + employee.getTotalOvertimeWeek() + employee.getTotalOvertimeWeekend())
+        double totalIndirectOccupiedHours = calculateIndirectOccupiedHours(employees);
+
+        Optional<IndirectOccupied> existingRecord = indirectDAO.findByMonthAndYear(month, year);
+
+        if (existingRecord.isPresent()) {
+            IndirectOccupied indirectOccupied = existingRecord.get();
+            indirectOccupied.setHours(totalIndirectOccupiedHours);
+            indirectDAO.updateIndirectOccupied(indirectOccupied);
+        } else {
+            IndirectOccupied newIndirectOccupied = new IndirectOccupied();
+            newIndirectOccupied.setYear(year);
+            newIndirectOccupied.setMonth(month);
+            newIndirectOccupied.setHours(totalIndirectOccupiedHours);
+            indirectDAO.saveIndirectOccupied(newIndirectOccupied);
+        }
+    }
+
+    private double calculateDirectlyOccupiedHours(List<Employee> employees) {
+        return employees.stream()
+                .filter(employee -> "P".equals(employee.getOtherConditions()) || "".equals(employee.getOtherConditions()))
+                .mapToDouble(this::calculateTotalHours)
                 .sum();
+    }
 
-        IndirectOccupied indirectOccupied = new IndirectOccupied();
-        indirectOccupied.setYear(year);
-        indirectOccupied.setMonth(month);
-        indirectOccupied.setHours(totalIndirectOccupiedHours);
+    private double calculateIndirectOccupiedHours(List<Employee> employees) {
+        return employees.stream()
+                .filter(employee -> "I".equals(employee.getOtherConditions().trim()) || "C".equals(employee.getOtherConditions().trim()))
+                .mapToDouble(this::calculateTotalHours)
+                .sum();
+    }
 
-        indirectDAO.saveIndirectOccupied(indirectOccupied);
+    private double calculateTotalHours(Employee employee) {
+        return (employee.getTotalWorkingDays() * 8.0) + employee.getTotalOvertimeWeek() + employee.getTotalOvertimeWeekend();
     }
 }

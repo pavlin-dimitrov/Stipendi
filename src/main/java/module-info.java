@@ -11,6 +11,7 @@ module com.example.stipendi {
     requires org.apache.poi.ooxml.schemas;
     requires org.apache.xmlbeans;
     requires org.apache.commons.collections4;
+    requires java.desktop;
 
     opens com.example.stipendi to javafx.fxml;
     exports com.example.stipendi;

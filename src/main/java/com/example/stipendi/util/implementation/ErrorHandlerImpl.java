@@ -31,11 +31,11 @@ public class ErrorHandlerImpl implements ErrorHandler {
     public void displayErrors() {
         if (hasErrors()) {
             Platform.runLater(() -> {
-                errorTextArea.appendText("Errors encountered during import:\n");
+                errorTextArea.appendText("Открити грешки по време на импортирането на файла:\n");
                 errorMessages.forEach(error -> errorTextArea.appendText(error + "\n"));
             });
         } else {
-            Platform.runLater(() -> errorTextArea.appendText("No errors encountered during import.\n"));
+            Platform.runLater(() -> errorTextArea.appendText("Не са открити грешки по време на импортирането на файла.\n"));
         }
     }
 

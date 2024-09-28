@@ -5,6 +5,7 @@ import com.example.stipendi.model.Employee;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class ExcelEmployeeReporter {
         this.employeeDAO = employeeDAO;
     }
 
-    public void generateEmployeeReport(String filePath, int month, int year) {
+    public String generateEmployeeReport(String filePath, int month, int year) {
         List<String> headers = Arrays.asList("ID", "EGN", "Full Name", "City", "Position", "Department", "Base Salary",
                 "Professional Experience Bonus", "Achievement Bonus",
                 "One Time Bonus", "Transport Bonus", "Fixed Bonus",
@@ -79,8 +80,11 @@ public class ExcelEmployeeReporter {
         // Save the workbook
         try (FileOutputStream fileOut = new FileOutputStream(filePath + "\\Stipendi OMS per mese " + month + "-" + year + ".xlsx" )) {
             workbook.write(fileOut);
+            return "Докладът беше успешно записан.";
+        } catch (FileNotFoundException e) {
+            return "Файлът е отворен в друга програма. Моля, затворете файла и опитайте отново.";
         } catch (IOException e) {
-            e.printStackTrace();
+            return "Възникна грешка при записване на отчета. Моля, опитайте отново.";
         }
     }
 

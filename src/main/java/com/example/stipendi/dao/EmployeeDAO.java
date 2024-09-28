@@ -158,13 +158,22 @@ public class EmployeeDAO {
     }
 
     public void clearEmployeesTable() {
-        String query = "DELETE FROM employees";
+        String deleteQuery = "DELETE FROM employees";
+        String resetAutoIncrementQuery = "ALTER TABLE employees AUTO_INCREMENT = 1";
 
         try (Connection connection = DatabaseHandler.connect();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.executeUpdate();
+             PreparedStatement deleteStatement = connection.prepareStatement(deleteQuery);
+             PreparedStatement resetStatement = connection.prepareStatement(resetAutoIncrementQuery)) {
+
+            // Изтриване на всички записи от таблицата
+            deleteStatement.executeUpdate();
+
+            // Ресетиране на автоинкрементния брояч
+            resetStatement.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 }

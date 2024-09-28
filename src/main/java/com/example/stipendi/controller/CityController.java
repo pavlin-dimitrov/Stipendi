@@ -123,12 +123,12 @@ public class CityController {
     @FXML
     private void handleAddCity() {
         if (cityNameField.getText().isEmpty() || distanceField.getText().isEmpty()) {
-            errorLabel.setText("Please, enter both city and distance.");
+            errorLabel.setText("Моля въведете и име на град и дистанция.");
             return;
         }
 
         if (!isDouble(distanceField.getText())) {
-            errorLabel.setText("Please, enter only numbers in the distance field.");
+            errorLabel.setText("Моля, въвеждайте само цифри в полето за дистанция.");
             return;
         }
 
@@ -144,10 +144,10 @@ public class CityController {
                 clearSelection();
                 loadTableData();
             } else {
-                errorLabel.setText("City already exists!");
+                errorLabel.setText("Град с това име съществува!");
             }
         } catch (Exception e) {
-            errorLabel.setText("Error occurred! Try again.");
+            errorLabel.setText("Възникна грешка! Опитайте отново.");
         }
     }
 
@@ -163,17 +163,17 @@ public class CityController {
     @FXML
     private void handleUpdateCity() {
         if (selectedCity == null) {
-            errorLabel.setText("Please select a city to update.");
+            errorLabel.setText("Изберете град за промяна.");
             return;
         }
 
         if (cityNameField.getText().isEmpty() || distanceField.getText().isEmpty()) {
-            errorLabel.setText("Please enter both city name and distance.");
+            errorLabel.setText("Моля въведете и име на град и дистанция.");
             return;
         }
 
         if (!isDouble(distanceField.getText())) {
-            errorLabel.setText("Please enter only numbers in the distance field.");
+            errorLabel.setText("Моля, въвеждайте само цифри в полето за дистанция.");
             return;
         }
 
@@ -186,7 +186,7 @@ public class CityController {
             clearSelection();
             loadTableData();
         } catch (Exception e) {
-            errorLabel.setText("An error occurred during update. Please try again.");
+            errorLabel.setText("Възникна грешка по време на ъпдейта. Моля опитайте отново.");
         }
     }
 

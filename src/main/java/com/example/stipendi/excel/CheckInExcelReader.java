@@ -41,7 +41,7 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
                 entryTime = parseDate(row.getCell(3), errorHandler, row.getRowNum() + 1);
                 record.setEntryTime(entryTime);
             } catch (Exception e) {
-                errorHandler.addError("Invalid entry time format at row " + (row.getRowNum() + 1) + ": " + e.getMessage());
+                errorHandler.addError("Невалиден формат на времето за ВХОД на ред: " + (row.getRowNum() + 1) + ": " + e.getMessage());
             }
 
             Cell exitTimeCell = row.getCell(4);
@@ -77,7 +77,7 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
 
                 checkInRecords.add(record);
             } else {
-                errorHandler.addError("Skipping row " + (row.getRowNum() + 1) + " due to missing entry time.");
+                errorHandler.addError("Пропускаме ред номер " + (row.getRowNum() + 1) + " заради лисващо време на ВХОД.");
             }
         }
     } catch (IOException | IllegalArgumentException e) {
@@ -99,8 +99,8 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
 
     private static LocalDateTime parseDate(Cell cell, ErrorHandler errorHandler, int rowNum) {
         if (cell == null) {
-            errorHandler.addError("Missing date at row " + rowNum);
-            throw new IllegalStateException("Missing date");
+            errorHandler.addError("Липсваща дата на ред: " + rowNum);
+            throw new IllegalStateException("Липсваща дата");
         }
 
         try {
@@ -109,8 +109,8 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
                     if (DateUtil.isCellDateFormatted(cell)) {
                         return cell.getLocalDateTimeCellValue();
                     } else {
-                        errorHandler.addError("Invalid numeric date format at row " + rowNum);
-                        throw new IllegalStateException("Invalid numeric date format");
+                        errorHandler.addError("Невалиден числов формат на датата " + rowNum);
+                        throw new IllegalStateException("Невалиден числов формат на датата");
                     }
                 case STRING:
                     String dateStr = cell.getStringCellValue().trim();
@@ -123,16 +123,16 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
                         try {
                             return LocalDateTime.parse(dateStr, formatterWithoutSeconds);
                         } catch (Exception e2) {
-                            errorHandler.addError("Invalid date string format at row " + rowNum + ": " + dateStr);
-                            throw new IllegalStateException("Invalid date string format: " + dateStr);
+                            errorHandler.addError("Невалиден текстови формат на данните в клетката: " + rowNum + ": " + dateStr);
+                            throw new IllegalStateException("Невалиден текстови формат на данните в клетката: " + dateStr);
                         }
                     }
                 default:
-                    errorHandler.addError("Unexpected cell type at row " + rowNum + ": " + cell.getCellType());
-                    throw new IllegalStateException("Unexpected cell type: " + cell.getCellType());
+                    errorHandler.addError("Неочакван тип на даните в клетка: " + rowNum + ": " + cell.getCellType());
+                    throw new IllegalStateException("Неочакван тип на даните в клетка: " + cell.getCellType());
             }
         } catch (Exception e) {
-            errorHandler.addError("Failed to parse date at row " + rowNum + ": " + e.getMessage());
+            errorHandler.addError("Неуспешен анализ на дата на ред " + rowNum + ": " + e.getMessage());
             throw e;
         }
     }
@@ -298,7 +298,7 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
                 }
                 String[] parts = duration.split(":");
                 if (parts.length != 2 && parts.length != 3) {
-                    errorHandler.addError("Invalid duration format at row " + rowNum + ": " + duration);
+                    errorHandler.addError("Невалиден времеви формат на ред " + rowNum + ": " + duration);
                     return 0;
                 }
                 try {
@@ -306,18 +306,18 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
                     double minutes = Double.parseDouble(parts[1]) / 60;
                     return hours + minutes;
                 } catch (NumberFormatException e) {
-                    errorHandler.addError("Invalid duration numbers at row " + rowNum + ": " + duration);
+                    errorHandler.addError("Невалиден времеви формат на ред " + rowNum + ": " + duration);
                     return 0;
                 }
             } else if (cell.getCellType() == CellType.NUMERIC) {
                 double duration = cell.getNumericCellValue();
                 return duration * 24; // Convert Excel numeric time to hours
             } else {
-                errorHandler.addError("Unexpected cell type at row " + rowNum + ": " + cell.getCellType());
+                errorHandler.addError("Непознат тип на клетката на ред " + rowNum + ": " + cell.getCellType());
                 return 0;
             }
         } catch (Exception e) {
-            errorHandler.addError("Failed to parse duration at row " + rowNum + ": " + e.getMessage());
+            errorHandler.addError("Неуспешно анализиране на времевия формат в ред " + rowNum + ": " + e.getMessage());
             return 0;
         }
     }

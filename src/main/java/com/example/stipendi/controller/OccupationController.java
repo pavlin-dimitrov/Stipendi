@@ -160,17 +160,50 @@ public class OccupationController {
         clearForm();
     }
 
+//    @FXML
+//    private void handleDeleteOccupation() {
+//        Occupation selectedOccupation = occupationTable.getSelectionModel().getSelectedItem();
+//        if (selectedOccupation == null) {
+//            errorLabel.setText("No occupation selected.");
+//            return;
+//        }
+//        occupationDAO.deleteOccupation(selectedOccupation.getId());
+//        loadOccupationData();
+//        clearForm();
+//    }
+
     @FXML
     private void handleDeleteOccupation() {
         Occupation selectedOccupation = occupationTable.getSelectionModel().getSelectedItem();
         if (selectedOccupation == null) {
-            errorLabel.setText("No occupation selected.");
+            errorLabel.setText("Моля, изберете професия за изтриване.");
             return;
         }
-        occupationDAO.deleteOccupation(selectedOccupation.getId());
-        loadOccupationData();
-        clearForm();
+
+        try {
+            // Проверка за свързани служители
+            int employeeCount = occupationDAO.getEmployeeCountByOccupation(selectedOccupation.getId());
+
+            if (employeeCount > 0) {
+                // Ако има свързани служители, покажи съобщение на потребителя
+                errorLabel.setText("Професията не може да бъде изтрита, докато има свързани служители. Моля, рестартирайте приложението, за да нулирате базата данни.");
+                return;
+            }
+
+            // Ако няма свързани служители, продължи с изтриването
+            occupationDAO.deleteOccupation(selectedOccupation.getId());
+
+            // Изчистване на формата и презареждане на данните
+            clearForm();
+            loadOccupationData();
+            errorLabel.setText("Професията е успешно изтрита.");
+
+        } catch (Exception e) {
+            errorLabel.setText("Възникна грешка при изтриването. Моля, опитайте отново.");
+            e.printStackTrace();  // Полезно за отстраняване на грешки
+        }
     }
+
 
     private void clearForm() {
         nkpdField.clear();

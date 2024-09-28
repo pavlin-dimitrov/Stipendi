@@ -19,7 +19,7 @@ public class CityDAO {
 
             // Проверка дали градът вече съществува
             if (cityExists(city.getCityName())) {
-                System.out.println("City already exists: " + city.getCityName());
+                System.out.println("Град с това име съществува: " + city.getCityName());
                 return false;
             }
 

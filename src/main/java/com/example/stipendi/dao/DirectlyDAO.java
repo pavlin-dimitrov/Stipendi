@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class DirectlyDAO {
 
@@ -148,5 +149,32 @@ public class DirectlyDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public Optional<DirectlyOccupied> findByMonthAndYear(int month, int year) {
+        String query = "SELECT * FROM directly_occupied WHERE year = ? AND month = ?";
+
+        try (Connection conn = DatabaseHandler.connect();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setInt(1, year);
+            pstmt.setInt(2, month);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    DirectlyOccupied directlyOccupied = new DirectlyOccupied();
+                    directlyOccupied.setId(rs.getInt("id"));
+                    directlyOccupied.setYear(rs.getInt("year"));
+                    directlyOccupied.setMonth(rs.getInt("month"));
+                    directlyOccupied.setHours(rs.getDouble("hours"));
+                    return Optional.of(directlyOccupied);
+                }
+            }
+        } catch (SQLException e) {
+            // Можете да изберете да логвате грешката или да я предадете нагоре
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
     }
 }
