@@ -24,8 +24,8 @@ public class SalaryService {
 
     public void updateEmployeeSalary(int month, int year, ErrorHandler errorHandler) {
         updateTransportBonus(errorHandler);
-        updateProfessionalExperienceBonus(errorHandler);
         updateBaseSalary(month, year, errorHandler);
+        updateProfessionalExperienceBonus(errorHandler);
         updateOneTimeBonus(month, year, errorHandler);
         updateFixedBonus(month, year, errorHandler);
         updateAchievementBonus(errorHandler);
@@ -36,13 +36,14 @@ public class SalaryService {
         List<Employee> employees = employeeDAO.getAllEmployees();
         double achievementBonus = appConfigVariableDAO.getAppConfigVariableValueByName("achievementBonus");
         double partOfFixedBonus = appConfigVariableDAO.getAppConfigVariableValueByName("partOfAchievementBonus");
+        double daysThatSetAchBonusToZero = appConfigVariableDAO.getAppConfigVariableValueByName("daysThatSetAchBonusToZero");
 
         employees.forEach(employee -> {
             double totalDaysOff = employee.getDaysOffDoo() + employee.getDaysOffEmpl();
 
-            if (totalDaysOff > 0 && totalDaysOff < 2) {
+            if (totalDaysOff > 0 && totalDaysOff < daysThatSetAchBonusToZero) {
                 employee.setAchievementBonus(achievementBonus - partOfFixedBonus);
-            } else if (totalDaysOff >= 2) {
+            } else if (totalDaysOff >= daysThatSetAchBonusToZero) {
                 employee.setAchievementBonus(0);
             } else if (employee.getOtherConditions().toLowerCase().contains("x")) {
                 employee.setAchievementBonus(0);

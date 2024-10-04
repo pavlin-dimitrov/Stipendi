@@ -105,18 +105,12 @@
       <version>1.18.34</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.33</version>
-      <scope>compile</scope>
-    </dependency>
   </dependencies>
   <properties>
     <main.class>com.example.stipendi.Main</main.class>
     <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <javafx.version>17.0.2</javafx.version>
+    <javafx.version>17.0.12</javafx.version>
     <junit.version>5.9.2</junit.version>
   </properties>
 </project>

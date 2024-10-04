@@ -75,18 +75,20 @@
 #submitContributi,
 #submitDdfl,
 #submitAchievementBonus,
-#submitCutAchievementBonus {
+#submitCutAchievementBonus,
+#submitDaysThatSetAchBonusToZero{
     -fx-background-color: #4CAF50;
 }
 
-#submitOvertimeWeek,
-#submitOvertimeWeekend,
-#submitNightShift,
-#submitFuel,
-#submitContributi,
-#submitDdfl,
-#submitAchievementBonus,
-#submitCutAchievementBonus:hover {
+#submitOvertimeWeek:hover,
+#submitOvertimeWeekend:hover,
+#submitNightShift:hover,
+#submitFuel:hover,
+#submitContributi:hover,
+#submitDdfl:hover,
+#submitAchievementBonus:hover,
+#submitCutAchievementBonus:hover,
+#submitDaysThatSetAchBonusToZero:hover {
     -fx-background-color: #45a049;
 }
 

@@ -16,6 +16,11 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lombok.Getter;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.StackPane;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -169,22 +174,6 @@ public class MainController {
         }
     }
 
-//    private void calculate() {
-//        if (employeeFilePath.getText().isEmpty() || attendanceFilePath.getText().isEmpty() || monthYearPicker.getValue() == null) {
-//            errorLabel.setText("Please select both files and a date.");
-//            return;
-//        }
-//
-//        YearMonth selectedDate = YearMonth.from(monthYearPicker.getValue());
-//        int month = selectedDate.getMonthValue();
-//        int year = selectedDate.getYear();
-//
-//        errorHandler.clearErrors();
-//        salaryService.updateEmployeeSalary(month, year, errorHandler);
-//        directIndirectService.updateIndirectOccupied(month, year);
-//        directIndirectService.updateDirectlyOccupied(month, year);
-//    }
-
     @FXML
     private void calculate() {
         if (employeeFilePath.getText().isEmpty() || attendanceFilePath.getText().isEmpty() || monthYearPicker.getValue() == null) {
@@ -331,29 +320,29 @@ public class MainController {
         }
     }
 
-    private void openHelpPage() {
+    public void openHelpPage() {
         try {
-            URL helpFileUrl = getClass().getResource("/help.html");
-            if (helpFileUrl == null) {
+            // Зареждане на HTML файла като ресурс
+            URL url = getClass().getResource("/help.html");
+            if (url == null) {
                 showAlert("Error", "Help file not found!", Alert.AlertType.ERROR);
                 return;
             }
 
-            File helpFile = new File(helpFileUrl.toURI());
-            String path = helpFile.getAbsolutePath();
+            // Създаване на WebView и зареждане на HTML страницата
+            WebView webView = new WebView();
+            WebEngine webEngine = webView.getEngine();
+            webEngine.load(url.toString());
 
-            // Използвайте системна команда за стартиране на браузъра
-            String os = System.getProperty("os.name").toLowerCase();
-            if (os.contains("win")) {
-                Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", "start", path});
-            } else if (os.contains("mac")) {
-                Runtime.getRuntime().exec(new String[]{"open", path});
-            } else if (os.contains("nix") || os.contains("nux")) {
-                Runtime.getRuntime().exec(new String[]{"xdg-open", path});
-            } else {
-                showAlert("Error", "Unsupported operating system!", Alert.AlertType.ERROR);
-            }
-        } catch (IOException | URISyntaxException e) {
+            // Създаване на нов прозорец за показване на HTML съдържанието
+            Stage helpStage = new Stage();
+            StackPane root = new StackPane(webView);
+            Scene scene = new Scene(root, 800, 600);
+            helpStage.setTitle("Help");
+            helpStage.setScene(scene);
+            helpStage.show();
+
+        } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error", "Failed to open help page!", Alert.AlertType.ERROR);
         }

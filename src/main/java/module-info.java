@@ -12,6 +12,13 @@ module com.example.stipendi {
     requires org.apache.xmlbeans;
     requires org.apache.commons.collections4;
     requires java.desktop;
+    requires org.slf4j;
+    requires org.apache.logging.log4j;
+    requires org.mariadb.jdbc;
+
+
+    requires javafx.web;
+    requires javafx.graphics;
 
     opens com.example.stipendi to javafx.fxml;
     exports com.example.stipendi;
@@ -19,7 +26,7 @@ module com.example.stipendi {
     opens com.example.stipendi.model to javafx.base; // Отвори моделния пакет за JavaFX, ако се използва в FXML
     exports com.example.stipendi.model; // Експортиране на моделния пакет, ако се използва в други модули
 
-    exports com.example.stipendi.controller; // Добавете тази линия
+    exports com.example.stipendi.controller;
 
     exports com.example.stipendi.service;
     exports com.example.stipendi.dao;
