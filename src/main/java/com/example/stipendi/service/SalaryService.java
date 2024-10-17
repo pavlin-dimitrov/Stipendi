@@ -24,10 +24,10 @@ public class SalaryService {
 
     public void updateEmployeeSalary(int month, int year, ErrorHandler errorHandler) {
         updateTransportBonus(errorHandler);
-        updateBaseSalary(month, year, errorHandler);
-        updateProfessionalExperienceBonus(errorHandler);
         updateOneTimeBonus(month, year, errorHandler);
+        updateBaseSalary(month, year, errorHandler);
         updateFixedBonus(month, year, errorHandler);
+        updateProfessionalExperienceBonus(errorHandler);
         updateAchievementBonus(errorHandler);
         updateFinalSalary(errorHandler);
     }
