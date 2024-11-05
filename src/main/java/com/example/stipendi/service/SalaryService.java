@@ -94,17 +94,8 @@ public class SalaryService {
 
     for (Employee employee : employees) {
         int workedDays;
-        if (employee.getTotalWorkingDays() > workingDays) {
-            workedDays = workingDays;
-        } else {
             workedDays = employee.getTotalWorkingDays();
-        }
-
-        // Ако workedDays < workingDays, изваждаме съботите
-        if (workedDays < workingDays) {
             workedDays -= employee.getWeekend();
-        }
-
         // Изчисляваме дневната ставка на бонуса и новия фиксиран бонус
         double dailyBonusRate = employee.getFixedBonus() / (double) workingDays;
         double newFixedBonus = dailyBonusRate * workedDays;
@@ -143,17 +134,8 @@ public class SalaryService {
 
         for (Employee employee : employees) {
             int workedDays;
-            if (employee.getTotalWorkingDays() > workingDays) {
-                workedDays = workingDays;
-            } else {
                 workedDays = employee.getTotalWorkingDays();
-            }
-
-            // Ако workedDays < workingDays, изваждаме съботите
-            if (workedDays < workingDays) {
                 workedDays -= employee.getWeekend();
-            }
-
             // Изчисляваме дневната ставка на заплатата и новата основна заплата
             double dailyRate = employee.getBaseSalary() / (double) workingDays;
             double newBaseSalary = dailyRate * workedDays;
@@ -169,7 +151,7 @@ public class SalaryService {
         List<Employee> employees = employeeDAO.getAllEmployees();
 
         employees.stream().forEach(employee -> {
-            double experienceBonus = (employee.getBaseSalary() + employee.getFixedBonus()) *
+            double experienceBonus = (employee.getBaseSalary()) *
                     (employee.getProfessionalExperienceRate() / 100);
             employee.setProfessionalExperienceBonus(experienceBonus);
             employeeDAO.updateEmployee(employee);
