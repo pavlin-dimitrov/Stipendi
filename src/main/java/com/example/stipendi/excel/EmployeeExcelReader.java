@@ -56,7 +56,7 @@ public class EmployeeExcelReader extends ExcelReader {
             try {
                 return formatEgn(String.valueOf((long) cell.getNumericCellValue()));
             } catch (NumberFormatException | IllegalStateException ex) {
-                errorHandler.addError("Invalid EGN format at row " + (rowNum + 1));
+                errorHandler.addError("Невалиден формат ЕГН на ред " + (rowNum + 1));
                 return null;
             }
         }
@@ -76,7 +76,7 @@ public class EmployeeExcelReader extends ExcelReader {
 
     private static double getNumericCellValue(Cell cell, String fieldName, int rowNum, ErrorHandler errorHandler) {
         if (cell == null) {
-            errorHandler.addError("Missing " + fieldName + " at row " + (rowNum + 1));
+            errorHandler.addError("Липсва " + fieldName + " на ред " + (rowNum + 1));
             return 0;
         }
 
@@ -92,7 +92,7 @@ public class EmployeeExcelReader extends ExcelReader {
                     } else if (isNumeric(stringValue)) {
                         return Double.parseDouble(stringValue);
                     } else {
-                        errorHandler.addError("Invalid " + fieldName + " format at row " + (rowNum + 1) + ": \"" + cell.getStringCellValue() + "\" (STRING)");
+                        errorHandler.addError("Невалиден " + fieldName + " формат на ред " + (rowNum + 1) + ": \"" + cell.getStringCellValue() + "\" (STRING)");
                         return 0;
                     }
                 case FORMULA:
@@ -106,15 +106,15 @@ public class EmployeeExcelReader extends ExcelReader {
                             } else if (isNumeric(formulaValue)) {
                                 return Double.parseDouble(formulaValue);
                             } else {
-                                errorHandler.addError("Invalid " + fieldName + " format at row " + (rowNum + 1) + ": \"" + cell.getRichStringCellValue().getString() + "\" (FORMULA STRING)");
+                                errorHandler.addError("Невалиден " + fieldName + " формат на ред " + (rowNum + 1) + ": \"" + cell.getRichStringCellValue().getString() + "\" (FORMULA STRING)");
                                 return 0;
                             }
                         default:
-                            errorHandler.addError("Unexpected formula result type for " + fieldName + " at row " + (rowNum + 1));
+                            errorHandler.addError("Неочакван тип за резултата на формула за " + fieldName + " на ред " + (rowNum + 1));
                             return 0;
                     }
                 default:
-                    errorHandler.addError("Unexpected cell type for " + fieldName + " at row " + (rowNum + 1) + ": " + cell.getCellType());
+                    errorHandler.addError("Неочакван тип стойност в клетката за " + fieldName + " на ред " + (rowNum + 1) + ": " + cell.getCellType());
                     return 0;
             }
         } catch (IllegalStateException e) {

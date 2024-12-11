@@ -26,7 +26,7 @@ public class ExcelFileUtil {
         } else if (filePath.endsWith(".xlsx")) {
             workbook = new XSSFWorkbook(fis);
         } else {
-            throw new IllegalArgumentException("The specified file is not Excel file");
+            throw new IllegalArgumentException("Посоченият файл не е Excel файл");
         }
 
         return workbook;

@@ -20,72 +20,72 @@ import java.util.stream.Collectors;
 
 public class CheckInExcelReader extends ExcelReader {
 
-public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<Employee> employees, ErrorHandler errorHandler) {
-    List<CheckInRecord> checkInRecords = new ArrayList<>();
-    try (Workbook workbook = ExcelFileUtil.getWorkbook(filePath)) {
-        Sheet sheet = workbook.getSheetAt(0);
-        for (Row row : sheet) {
-            if (row.getRowNum() == 0 || isRowEmpty(row)) continue; // Пропускаме заглавния ред и празни редове
-            CheckInRecord record = new CheckInRecord();
-            String egn = getStringCellValue(row.getCell(1));
-            if (egn == null || egn.isEmpty()) {
-                continue; // Пропускаме редове без ЕГН
-            }
-            record.setEgn(egn);
+    public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<Employee> employees, ErrorHandler errorHandler) {
+        List<CheckInRecord> checkInRecords = new ArrayList<>();
+        try (Workbook workbook = ExcelFileUtil.getWorkbook(filePath)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0 || isRowEmpty(row)) continue; // Пропускаме заглавния ред и празни редове
+                CheckInRecord record = new CheckInRecord();
+                String egn = getStringCellValue(row.getCell(1));
+                if (egn == null || egn.isEmpty()) {
+                    continue; // Пропускаме редове без ЕГН
+                }
+                record.setEgn(egn);
 
-            LocalDateTime entryTime = null;
-            LocalDateTime exitTime = null;
-            boolean isExitTimeEmpty = false;
+                LocalDateTime entryTime = null;
+                LocalDateTime exitTime = null;
+                boolean isExitTimeEmpty = false;
 
-            try {
-                entryTime = parseDate(row.getCell(3), errorHandler, row.getRowNum() + 1);
-                record.setEntryTime(entryTime);
-            } catch (Exception e) {
-                errorHandler.addError("Невалиден формат на времето за ВХОД на ред: " + (row.getRowNum() + 1) + ": " + e.getMessage());
-            }
-
-            Cell exitTimeCell = row.getCell(4);
-            if (exitTimeCell == null || exitTimeCell.getCellType() == CellType.BLANK) {
-                isExitTimeEmpty = true;
-            } else {
                 try {
-                    exitTime = parseDate(exitTimeCell, errorHandler, row.getRowNum() + 1);
-                    record.setExitTime(exitTime);
+                    entryTime = parseDate(row.getCell(3), errorHandler, row.getRowNum() + 1);
+                    record.setEntryTime(entryTime);
                 } catch (Exception e) {
-                    // Не добавяме грешка, просто оставяме exitTime като null
+                    errorHandler.addError("Невалиден формат на времето за ВХОД на ред: " + (row.getRowNum() + 1) + ": " + e.getMessage());
+                }
+
+                Cell exitTimeCell = row.getCell(4);
+                if (exitTimeCell == null || exitTimeCell.getCellType() == CellType.BLANK) {
                     isExitTimeEmpty = true;
-                }
-            }
-
-            // Продължаваме само ако имаме валидно време на влизане
-            if (entryTime != null) {
-                WorkShift workShift = new WorkShift();
-                workShift.setType(getStringCellValue(row.getCell(5)));
-                record.setWorkShift(workShift);
-
-                if (isExitTimeEmpty) {
-                    // Ако времето на излизане е празно, задаваме 0 на всички продължителности
-                    record.setRegularHours(0);
-                    record.setOvertimeHours(0);
-                    record.setTotalHours(0);
                 } else {
-                    // Използваме вашия parseDuration метод
-                    record.setRegularHours(parseDuration(row.getCell(6), errorHandler, row.getRowNum() + 1));
-                    record.setOvertimeHours(parseDuration(row.getCell(7), errorHandler, row.getRowNum() + 1));
-                    record.setTotalHours(parseDuration(row.getCell(8), errorHandler, row.getRowNum() + 1));
+                    try {
+                        exitTime = parseDate(exitTimeCell, errorHandler, row.getRowNum() + 1);
+                        record.setExitTime(exitTime);
+                    } catch (Exception e) {
+                        // Не добавяме грешка, просто оставяме exitTime като null
+                        isExitTimeEmpty = true;
+                    }
                 }
 
-                checkInRecords.add(record);
-            } else {
-                errorHandler.addError("Пропускаме ред номер " + (row.getRowNum() + 1) + " заради лисващо време на ВХОД.");
+                // Продължаваме само ако имаме валидно време на влизане
+                if (entryTime != null) {
+                    WorkShift workShift = new WorkShift();
+                    workShift.setType(getStringCellValue(row.getCell(5)));
+                    record.setWorkShift(workShift);
+
+                    if (isExitTimeEmpty) {
+                        // Ако времето на излизане е празно, задаваме 0 на всички продължителности
+                        record.setRegularHours(0);
+                        record.setOvertimeHours(0);
+                        record.setTotalHours(0);
+                    } else {
+                        // Използваме вашия parseDuration метод
+                        record.setRegularHours(parseDuration(row.getCell(6), errorHandler, row.getRowNum() + 1));
+                        record.setOvertimeHours(parseDuration(row.getCell(7), errorHandler, row.getRowNum() + 1));
+                        record.setTotalHours(parseDuration(row.getCell(8), errorHandler, row.getRowNum() + 1));
+                    }
+
+                    checkInRecords.add(record);
+                } else {
+                    errorHandler.addError("Пропускаме ред номер " + (row.getRowNum() + 1) + " заради лисващо време на ВХОД.");
+                }
             }
+        } catch (IOException | IllegalArgumentException e) {
+            errorHandler.addError(e.getMessage());
         }
-    } catch (IOException | IllegalArgumentException e) {
-        errorHandler.addError(e.getMessage());
+        updateEmployeeCheckIn(employees, checkInRecords, errorHandler);
+        return employees;
     }
-    updateEmployeeCheckIn(employees, checkInRecords, errorHandler);
-    return employees;
-}
 
     private static boolean isRowEmpty(Row row) {
         for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
@@ -147,6 +147,7 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
             int totalOvertimeWeek = 0;
             int totalOvertimeWeekend = 0;
             int weekendDays = 0;
+            double notWorkedHours = calculateNotWorkedHours(employeeRecords); //TODO NEW
 
             for (CheckInRecord record : employeeRecords) {
                 if (record.getEntryTime() != null) {
@@ -189,7 +190,26 @@ public static List<Employee> readCheckInRecordsFromExcel(String filePath, List<E
             employee.setTotalOvertimeWeekend(totalOvertimeWeekend);
             employee.setTotalWorkingDays(totalWorkingDays);
             employee.setWeekend(weekendDays);
+            employee.setRegularHours(notWorkedHours); //TODO NEW
         }
+    }
+
+    private static double calculateNotWorkedHours(List<CheckInRecord> employeeRecords) {
+        double notWorkedHours = 0.0;
+        for (CheckInRecord record : employeeRecords) {
+            // Проверка само за делнични дни
+            if (record.getEntryTime() != null && !isSaturday(record.getEntryTime().getDayOfWeek())) {
+                // Пресмятане на разликата между стандартните 8 часа и отработените часове
+                double notWorked = 8.0 - record.getRegularHours();
+                // По-детайлна проверка и логване
+                if (notWorked > 0.083) {
+                    notWorkedHours += notWorked;
+                }
+            }
+        }
+        // Форматиране с по-явно закръгляне
+        double roundedNotWorkedHours = Math.round(notWorkedHours * 100.0) / 100.0;
+        return roundedNotWorkedHours;
     }
 
     private static OvertimeResult calculateOvertimeSaturday(LocalDateTime startDate, LocalDateTime endDate, double regularHours, String employeeId) {

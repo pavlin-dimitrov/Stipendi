@@ -24,7 +24,7 @@ public class ExcelEmployeeReporter {
         List<String> headers = Arrays.asList("ID", "EGN", "Full Name", "City", "Position", "Department", "Base Salary",
                 "Professional Experience Bonus", "Achievement Bonus",
                 "One Time Bonus", "Transport Bonus", "Fixed Bonus",
-                "Total Overtime Week", "Total Overtime Weekend", "Total Working Days","Weekend", "Final Salary");
+                "Total Overtime Week", "Total Overtime Weekend", "Total Working Days","Weekend", "Not worked hours", "$ for hour overtime", "Final Salary");
 
         List<List<Object>> data = getEmployeeData();
 
@@ -63,7 +63,7 @@ public class ExcelEmployeeReporter {
                     cell.setCellValue(((Number) value).doubleValue());
 
                     // Apply currency style to specific columns
-                    if (j == 6 || j == 7 || j == 8 || j == 9 || j == 10 || j == 11 || j == 16) {
+                    if (j == 6 || j == 7 || j == 8 || j == 9 || j == 10 || j == 11 || j == 17 || j == 18) {
                         cell.setCellStyle(currencyStyle);
                     }
                 } else {
@@ -110,6 +110,8 @@ public class ExcelEmployeeReporter {
                     employee.getTotalOvertimeWeekend(),
                     employee.getTotalWorkingDays(),
                     employee.getWeekend(),
+                    employee.getRegularHours(),
+                    employee.getPaymentForOvTimeHour(),
                     employee.getFinalSalary()
             );
             data.add(rowData);

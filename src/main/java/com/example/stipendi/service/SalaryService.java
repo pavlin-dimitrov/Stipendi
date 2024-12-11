@@ -25,6 +25,7 @@ public class SalaryService {
     public void updateEmployeeSalary(int month, int year, ErrorHandler errorHandler) {
         updateTransportBonus(errorHandler);
         updateOneTimeBonus(month, year, errorHandler);
+        overtimeHourPayment(month, year, errorHandler);
         updateBaseSalary(month, year, errorHandler);
         updateFixedBonus(month, year, errorHandler);
         updateProfessionalExperienceBonus(errorHandler);
@@ -54,7 +55,7 @@ public class SalaryService {
             }
             employeeDAO.updateEmployee(employee);
         });
-        errorHandler.addError("Achievement Bonuse calculated!");
+        errorHandler.addError("Изчислен бонус за постижения!");
     }
 
     private void updateOneTimeBonus(int month, int year, ErrorHandler errorHandler) {
@@ -71,7 +72,7 @@ public class SalaryService {
                     (workdayCalculator.getWorkdaysInMonth(month, year) * 8.0));
 
             double nightShift = 0;
-            if (employee.getOtherConditions().toLowerCase().contains("c") || employee.getOtherConditions().equals("")) {
+            if (employee.getOtherConditions().toLowerCase().contains("c") || employee.getOtherConditions().toLowerCase().contains("d")) {
                 nightShift = employee.getTotalOvertimeWeek() * nightShiftRate;
             }
 
@@ -85,7 +86,26 @@ public class SalaryService {
             employee.setOneTimeBonus(oneTimeBonus);
             employeeDAO.updateEmployee(employee);
         });
-        errorHandler.addError("One Time Bonus calculated!");
+        errorHandler.addError("Изчислен еднократен бонус!");
+    }
+
+    private void overtimeHourPayment(int month, int year, ErrorHandler errorHandler){
+        List<Employee> employees = employeeDAO.getAllEmployees();
+        double overtimeWeekRate = appConfigVariableDAO.getAppConfigVariableValueByName("overtimeWeek");
+
+        employees.stream().forEach(employee -> {
+            double experienceBonus = (employee.getBaseSalary() + employee.getFixedBonus()) *
+                    (employee.getProfessionalExperienceRate() / 100);
+
+            double hourPayment = ((employee.getBaseSalary() + employee.getFixedBonus() + experienceBonus) /
+                    (workdayCalculator.getWorkdaysInMonth(month, year) * 8.0));
+
+            double hourPaymentOvertime = hourPayment * overtimeWeekRate;
+
+            employee.setPaymentForOvTimeHour(hourPaymentOvertime);
+            employeeDAO.updateEmployee(employee);
+        });
+        errorHandler.addError("Изчислена делнична часова ставка за извънреден труд!");
     }
 
     private void updateFixedBonus(int month, int year, ErrorHandler errorHandler) {
@@ -103,7 +123,7 @@ public class SalaryService {
         employee.setFixedBonus(newFixedBonus);
         employeeDAO.updateEmployee(employee);
     }
-    errorHandler.addError("Fixed Bonus calculated for " + workdayCalculator.getWorkdaysInMonth(month, year) + " working days.");
+    errorHandler.addError("Фиксиран бонус, изчислен за " + workdayCalculator.getWorkdaysInMonth(month, year) + " работни дни.");
 }
 
     private void updateTransportBonus(ErrorHandler errorHandler) {
@@ -125,7 +145,7 @@ public class SalaryService {
             employee.setTransportBonus(transportBonus);
             employeeDAO.updateEmployee(employee);
         });
-        errorHandler.addError("Transport Bonus Calculated!");
+        errorHandler.addError("Изчислен транспортен бонус!");
     }
 
     private void updateBaseSalary(int month, int year, ErrorHandler errorHandler) {
@@ -144,7 +164,7 @@ public class SalaryService {
             employeeDAO.updateEmployee(employee);
         }
 
-        errorHandler.addError("Base Salary Calculated!");
+        errorHandler.addError("Изчислена основна заплата!");
     }
 
     private void updateProfessionalExperienceBonus(ErrorHandler errorHandler) {
@@ -156,7 +176,7 @@ public class SalaryService {
             employee.setProfessionalExperienceBonus(experienceBonus);
             employeeDAO.updateEmployee(employee);
         });
-        errorHandler.addError("Professional Experience Bonus calculated!");
+        errorHandler.addError("Изчислен бонус за професионален опит!");
     }
 
     private void updateFinalSalary(ErrorHandler errorHandler) {
@@ -168,7 +188,7 @@ public class SalaryService {
                 employee.setFinalSalary(finalSalary);
                 employeeDAO.updateEmployee(employee);
             } catch (Exception e) {
-                errorHandler.addError("Error calculating final salary for employee: " + employee.getId() + " - " + e.getMessage());
+                errorHandler.addError("Грешка при изчисляване на крайната заплата за служител: " + employee.getId() + " - " + e.getMessage());
             }
         });
 

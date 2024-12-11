@@ -16,7 +16,7 @@ public class WorkdayCalculator {
 
     public int getWorkdaysInMonth(int month, int year) {
         if (month < 1 || month > 12) {
-            throw new IllegalArgumentException("Month should be between 1 and 12");
+            throw new IllegalArgumentException("Месецът трябва да е между 1 и 12");
         }
 
         YearMonth yearMonth = YearMonth.of(year, month);

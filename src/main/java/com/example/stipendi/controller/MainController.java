@@ -12,19 +12,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lombok.Getter;
-import javafx.scene.control.Alert;
-import javafx.scene.layout.StackPane;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
-
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.YearMonth;
 
@@ -144,9 +141,11 @@ public class MainController {
         if (file != null) {
             employeeFilePath.setText(file.getAbsolutePath());
             errorHandler.clearErrors(); // Clear previous errors
-            employeeService.importEmployeesFromExcel(employeeFilePath.getText(), errorHandler);
+            employeeService.importEmployeesFromExcel(employeeFilePath.getText(),
+                    errorHandler,
+                    message -> errorTextArea.appendText(message + "\n"));
             if (!errorHandler.hasErrors()) {
-                showAlert("Success", "Employees imported successfully.", Alert.AlertType.INFORMATION);
+                showAlert("Success", "Служителите са импортирани успешно.", Alert.AlertType.INFORMATION);
             }
         }
     }
@@ -160,7 +159,7 @@ public class MainController {
             errorHandler.clearErrors(); // Clear previous errors
             employeeService.importAttendanceRecordsFromExcel(attendanceFilePath.getText(), errorHandler);
             if (!errorHandler.hasErrors()) {
-                showAlert("Success", "Attendance records imported successfully.", Alert.AlertType.INFORMATION);
+                showAlert("Success", "Записите за присъствие са импортирани успешно.", Alert.AlertType.INFORMATION);
             }
         }
     }
@@ -177,7 +176,7 @@ public class MainController {
     @FXML
     private void calculate() {
         if (employeeFilePath.getText().isEmpty() || attendanceFilePath.getText().isEmpty() || monthYearPicker.getValue() == null) {
-            errorLabel.setText("Please select both files and a date.");
+            errorLabel.setText("Моля, изберете двата файла и дата.");
             return;
         }
 

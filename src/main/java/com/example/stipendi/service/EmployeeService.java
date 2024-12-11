@@ -27,9 +27,9 @@ public class EmployeeService {
         this.newNkpdCodes = new HashSet<>();
     }
 
-    public void importEmployeesFromExcel(String employeeFilePath, ErrorHandler errorHandler) {
+    public void importEmployeesFromExcel(String employeeFilePath, ErrorHandler errorHandler, Consumer<String> messageConsumer) {
         List<Employee> employees = readEmployees(employeeFilePath, errorHandler);
-        Map<String, Employee> uniqueEgnMap = processEmployees(employees, errorHandler);
+        Map<String, Employee> uniqueEgnMap = processEmployees(employees, errorHandler, messageConsumer);
         saveEmployees(uniqueEgnMap.values());
         reportNewNkpdCodes(errorHandler);
     }
@@ -42,7 +42,7 @@ public class EmployeeService {
         return employees;
     }
 
-    private Map<String, Employee> processEmployees(List<Employee> employees, ErrorHandler errorHandler) {
+    private Map<String, Employee> processEmployees(List<Employee> employees, ErrorHandler errorHandler, Consumer<String> messageConsumer) {
         Map<String, Employee> uniqueEgnMap = new LinkedHashMap<>();
         for (Employee employee : employees) {
             String egn = employee.getEgn();
@@ -50,7 +50,7 @@ public class EmployeeService {
                 handleDuplicateEmployee(uniqueEgnMap.get(egn), employee, errorHandler);
             } else {
                 uniqueEgnMap.put(egn, employee);
-                processEmployeeData(employee);
+                processEmployeeData(employee, messageConsumer);
             }
         }
         return uniqueEgnMap;
@@ -92,16 +92,17 @@ public class EmployeeService {
         }
     }
 
-    private void processEmployeeData(Employee employee) {
-        updateCity(employee);
+    private void processEmployeeData(Employee employee, Consumer<String> messageConsumer) {
+        updateCity(employee, messageConsumer);
         updateOccupation(employee);
     }
 
-    private void updateCity(Employee employee) {
+    private void updateCity(Employee employee, Consumer<String> messageConsumer) {
         City city = cityDAO.getCityByName(employee.getCity().getCityName());
         if (city == null) {
             cityDAO.saveCity(employee.getCity());
             city = cityDAO.getCityByName(employee.getCity().getCityName());
+            messageConsumer.accept("Нов град \"" + city.getCityName() + "\" е добавен в базата данни. Добави километри!");
         }
         employee.setCity(city);
     }
@@ -128,7 +129,7 @@ public class EmployeeService {
 
     private void reportNewNkpdCodes(ErrorHandler errorHandler) {
         if (!newNkpdCodes.isEmpty()) {
-            String message = "The following new NKPD codes were added to the database without department and position information:\n" +
+            String message = "Следните нови кодове по НКПД бяха добавени към базата данни без информация за отдел и длъжност:\n" +
                     String.join("\n", newNkpdCodes);
             errorHandler.addError(message);
         }

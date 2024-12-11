@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseHandler {
-//    private static final String URL = "jdbc:mysql://localhost:3306/payroll_db";
+    //    private static final String URL = "jdbc:mysql://localhost:3306/payroll_db";
     private static final String URL = "jdbc:mariadb://localhost:3309/payroll_db";
 
     private static final String DB_NAME = "payroll_db";
@@ -61,31 +61,33 @@ public class DatabaseHandler {
             """;
 
             String createEmployeesTable = """
-                CREATE TABLE IF NOT EXISTS employees (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    egn VARCHAR(10) NOT NULL UNIQUE,
-                    full_name VARCHAR(100) NOT NULL,
-                    city_id INT,
-                    occupation_id INT,
-                    base_salary DOUBLE,
-                    professional_experience_rate DOUBLE,
-                    professional_experience_bonus DOUBLE,
-                    achievement_bonus DOUBLE,
-                    one_time_bonus DOUBLE,
-                    transport_bonus DOUBLE,
-                    fixed_bonus DOUBLE,
-                    other_conditions VARCHAR(255),
-                    days_off_doo DOUBLE,
-                    days_off_empl DOUBLE,
-                    total_overtime_week int,
-                    total_overtime_weekend int,
-                    total_working_days int,
-                    weekend int,
-                    final_salary DOUBLE,
-                    FOREIGN KEY (city_id) REFERENCES cities(id),
-                    FOREIGN KEY (occupation_id) REFERENCES occupations(id)
-                );
-            """;
+                        CREATE TABLE IF NOT EXISTS employees (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            egn VARCHAR(10) NOT NULL UNIQUE,
+                            full_name VARCHAR(100) NOT NULL,
+                            city_id INT,
+                            occupation_id INT,
+                            base_salary DOUBLE,
+                            professional_experience_rate DOUBLE,
+                            professional_experience_bonus DOUBLE,
+                            achievement_bonus DOUBLE,
+                            one_time_bonus DOUBLE,
+                            transport_bonus DOUBLE,
+                            fixed_bonus DOUBLE,
+                            other_conditions VARCHAR(255),
+                            days_off_doo DOUBLE,
+                            days_off_empl DOUBLE,
+                            total_overtime_week int,
+                            total_overtime_weekend int,
+                            total_working_days int,
+                            weekend int,
+                            regular_hours DOUBLE,
+                            payment_for_ov_time_hour DOUBLE,
+                            final_salary DOUBLE,
+                            FOREIGN KEY (city_id) REFERENCES cities(id),
+                            FOREIGN KEY (occupation_id) REFERENCES occupations(id)
+                        );
+                    """;
 
             String createWorkShiftsTable = """
                 CREATE TABLE IF NOT EXISTS work_shifts (

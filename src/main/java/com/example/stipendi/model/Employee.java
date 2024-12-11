@@ -29,5 +29,8 @@ public class Employee {
     private int totalOvertimeWeekend;
     private int totalWorkingDays;
     private int weekend;
+    private double regularHours; //TODO NEW
+    private double paymentForOvTimeHour; //TODO NEW
     private double finalSalary;
+
 }

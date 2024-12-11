@@ -122,7 +122,7 @@ public class OccupationController {
         String position = positionField.getText();
 
         if (nkpd == null || nkpd.trim().isEmpty()) {
-            errorLabel.setText("NKPD cannot be empty.");
+            errorLabel.setText("НКПД не може да бъде празн поле.");
             return;
         }
 
@@ -139,7 +139,7 @@ public class OccupationController {
     private void handleUpdateOccupation() {
         Occupation selectedOccupation = occupationTable.getSelectionModel().getSelectedItem();
         if (selectedOccupation == null) {
-            errorLabel.setText("No occupation selected.");
+            errorLabel.setText("Няма избрана професия.");
             return;
         }
 
@@ -148,7 +148,7 @@ public class OccupationController {
         String position = positionField.getText();
 
         if (nkpd == null || nkpd.trim().isEmpty()) {
-            errorLabel.setText("NKPD cannot be empty.");
+            errorLabel.setText("НКПД не може да бъде празн поле.");
             return;
         }
 
@@ -159,18 +159,6 @@ public class OccupationController {
         loadOccupationData();
         clearForm();
     }
-
-//    @FXML
-//    private void handleDeleteOccupation() {
-//        Occupation selectedOccupation = occupationTable.getSelectionModel().getSelectedItem();
-//        if (selectedOccupation == null) {
-//            errorLabel.setText("No occupation selected.");
-//            return;
-//        }
-//        occupationDAO.deleteOccupation(selectedOccupation.getId());
-//        loadOccupationData();
-//        clearForm();
-//    }
 
     @FXML
     private void handleDeleteOccupation() {

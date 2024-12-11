@@ -25,7 +25,7 @@ public class EmployeeDAO {
         String query = "INSERT INTO employees (egn, full_name, city_id, occupation_id, base_salary, " +
                 "professional_experience_rate, professional_experience_bonus, achievement_bonus, one_time_bonus, " +
                 "transport_bonus, fixed_bonus, other_conditions, days_off_doo, days_off_empl, total_overtime_week, total_overtime_weekend, " +
-                "total_working_days, weekend, final_salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "total_working_days, weekend, regular_hours, payment_for_ov_time_hour, final_salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -48,7 +48,9 @@ public class EmployeeDAO {
             preparedStatement.setInt(16, employee.getTotalOvertimeWeekend());
             preparedStatement.setInt(17, employee.getTotalWorkingDays());
             preparedStatement.setInt(18, employee.getWeekend());
-            preparedStatement.setDouble(19, employee.getFinalSalary());
+            preparedStatement.setDouble(19, employee.getRegularHours());
+            preparedStatement.setDouble(20, employee.getPaymentForOvTimeHour());
+            preparedStatement.setDouble(21, employee.getFinalSalary());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -90,6 +92,8 @@ public class EmployeeDAO {
                 employee.setTotalOvertimeWeekend(resultSet.getInt("total_overtime_weekend"));
                 employee.setTotalWorkingDays(resultSet.getInt("total_working_days"));
                 employee.setWeekend(resultSet.getInt("weekend"));
+                employee.setRegularHours(resultSet.getDouble("regular_hours"));
+                employee.setPaymentForOvTimeHour(resultSet.getDouble("payment_for_ov_time_hour"));
                 employee.setFinalSalary(resultSet.getDouble("final_salary"));
 
                 employees.add(employee);
@@ -101,12 +105,37 @@ public class EmployeeDAO {
         return employees;
     }
 
+    public void updateEmployeeAttendance(Employee employee) {
+        String query = "UPDATE employees SET " +
+                "total_overtime_week = ?, " +
+                "total_overtime_weekend = ?, " +
+                "total_working_days = ?, " +
+                "regular_hours = ?, " + // Редовни часове
+                "weekend = ? WHERE egn = ?"; // Уикенд
+
+        try (Connection connection = DatabaseHandler.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, employee.getTotalOvertimeWeek());
+            preparedStatement.setInt(2, employee.getTotalOvertimeWeekend());
+            preparedStatement.setInt(3, employee.getTotalWorkingDays());
+            preparedStatement.setDouble(4, employee.getRegularHours());
+            preparedStatement.setInt(5, employee.getWeekend());
+            preparedStatement.setString(6, employee.getEgn());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void updateEmployee(Employee employee) {
         String query = "UPDATE employees SET egn = ?, full_name = ?, city_id = ?, occupation_id = ?, base_salary = ?, " +
                 "professional_experience_rate = ?, professional_experience_bonus = ?, achievement_bonus = ?, " +
                 "one_time_bonus = ?, transport_bonus = ?, fixed_bonus = ?, other_conditions = ?, " +
                 "days_off_doo = ?, days_off_empl = ?, total_overtime_week = ?, total_overtime_weekend = ?, " +
-                "total_working_days = ?, weekend = ?, final_salary = ? WHERE id = ?";
+                "total_working_days = ?, weekend = ?, payment_for_ov_time_hour = ?, final_salary = ? WHERE id = ?";
 
         try (Connection connection = DatabaseHandler.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -129,8 +158,9 @@ public class EmployeeDAO {
             preparedStatement.setInt(16, employee.getTotalOvertimeWeekend());
             preparedStatement.setInt(17, employee.getTotalWorkingDays());
             preparedStatement.setInt(18, employee.getWeekend());
-            preparedStatement.setDouble(19, employee.getFinalSalary());
-            preparedStatement.setInt(20, employee.getId());
+            preparedStatement.setDouble(19, employee.getPaymentForOvTimeHour());
+            preparedStatement.setDouble(20, employee.getFinalSalary());
+            preparedStatement.setInt(21, employee.getId());
 
             int rowsUpdated = preparedStatement.executeUpdate();
 
@@ -139,23 +169,29 @@ public class EmployeeDAO {
         }
     }
 
-    public void updateEmployeeAttendance(Employee employee) {
-        String query = "UPDATE employees SET total_overtime_week = ?, total_overtime_weekend = ?, total_working_days = ?, weekend = ? WHERE egn = ?";
-
-        try (Connection connection = DatabaseHandler.connect();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-
-            preparedStatement.setInt(1, employee.getTotalOvertimeWeek());
-            preparedStatement.setInt(2, employee.getTotalOvertimeWeekend());
-            preparedStatement.setInt(3, employee.getTotalWorkingDays());
-            preparedStatement.setInt(4, employee.getWeekend());
-            preparedStatement.setString(5, employee.getEgn());
-
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void updateEmployeeAttendance(Employee employee) {
+//        String query = "UPDATE employees SET " +
+//                "total_overtime_week = ?, " +
+//                "total_overtime_weekend = ?, " +
+//                "total_working_days = ?, " +
+//                "regular_hours = ?, " +
+//                "weekend = ? WHERE egn = ?";
+//
+//        try (Connection connection = DatabaseHandler.connect();
+//             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+//
+//            preparedStatement.setInt(1, employee.getTotalOvertimeWeek());
+//            preparedStatement.setInt(2, employee.getTotalOvertimeWeekend());
+//            preparedStatement.setInt(3, employee.getTotalWorkingDays());
+//            preparedStatement.setInt(4, employee.getWeekend());
+//            preparedStatement.setDouble(5, employee.getRegularHours());
+//            preparedStatement.setString(6, employee.getEgn());
+//
+//            preparedStatement.executeUpdate();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public void clearEmployeesTable() {
         String deleteQuery = "DELETE FROM employees";
